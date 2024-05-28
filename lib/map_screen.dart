@@ -31,11 +31,15 @@ class _MapScreenState extends State<MapScreen> {
       print(local);
     }
 
-    var googleMap = GoogleMap(
+    var marker = Marker(
+        markerId: MarkerId('teste'),
+        position: LatLng(32, 12),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue));
+
+    var googleMap = const GoogleMap(
       myLocationButtonEnabled: true,
       zoomControlsEnabled: true,
       initialCameraPosition: _initialCameraPosition,
-      markers: createMarkers(),
     );
     return Scaffold(
       body: googleMap,
@@ -49,13 +53,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  createMarkers() {
-    var markers = Marker(
-        markerId: MarkerId('teste'),
-        position: LatLng(32, 12),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue));
-    return markers;
-  }
+  createMarkers() {}
 
   @override
   void dispose() {
