@@ -1,0 +1,7 @@
+package com.example.apphospital
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
+
+
