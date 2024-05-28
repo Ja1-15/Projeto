@@ -14,16 +14,17 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   static const _initialCameraPosition =
-      CameraPosition(target: LatLng(-11.1560511, 12.4798572), zoom: 20);
+      CameraPosition(target: LatLng(32.1560511, 21.4798572), zoom: 20);
   late GoogleMapController _googleMapController;
 
+//Nao ta funcionando ainda
+//tentando arrumar um jeito de inicializar aesa funcao getlocal(), mas nao consegui
   @override
   Widget build(BuildContext context) {
     List<Post> local = [];
     getLocal() async {
       var response = await http.get(
-          Uri.http('sites.otex.com.br', '/api_cnes/api/estabelecimento.php'),
-          headers: {HttpHeaders.authorizationHeader: 'admin:admin'});
+          Uri.http('sites.otex.com.br', '/api_cnes/api/estabelecimento.php'));
       var jsonData = jsonDecode(response.body);
 
       local.add(jsonData);
@@ -31,18 +32,16 @@ class _MapScreenState extends State<MapScreen> {
       print(local);
     }
 
-    var marker = Marker(
-        markerId: MarkerId('teste'),
-        position: LatLng(32, 12),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue));
-
-    var googleMap = const GoogleMap(
-      myLocationButtonEnabled: true,
-      zoomControlsEnabled: true,
-      initialCameraPosition: _initialCameraPosition,
-    );
     return Scaffold(
-      body: googleMap,
+      body: GoogleMap(
+        initialCameraPosition: _initialCameraPosition,
+        myLocationButtonEnabled: true,
+        zoomControlsEnabled: true,
+        markers: {
+          //marcador
+          Marker(markerId: MarkerId('teste'), position: LatLng(32, 21))
+        },
+      ), //botao no canto do app, pode por ele pra direcionar a camera pra sua localizaçao depois
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.black,
@@ -53,8 +52,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  createMarkers() {}
-
+//Ignora isso
   @override
   void dispose() {
     _googleMapController.dispose();

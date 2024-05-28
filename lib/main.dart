@@ -11,8 +11,7 @@ void main() {
   runApp(MyApp());
 }
 
-//Nao ta funcionando ainda
-//Por algum motivo nao da pra pegar a informacao ainda
+//Mexe nisso não!!!
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
