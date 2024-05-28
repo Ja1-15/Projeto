@@ -10,6 +10,8 @@ void main() {
   runApp(MyApp());
 }
 
+//Nao ta funcionando ainda
+//Por algum motivo nao da pra pegar a informacao ainda
 class MyApp extends StatelessWidget {
   List<Post> local = [];
 
