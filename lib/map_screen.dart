@@ -28,8 +28,6 @@ class _MapScreenState extends State<MapScreen> {
       var jsonData = jsonDecode(response.body);
 
       local.add(jsonData);
-
-      print(local);
     }
 
     return Scaffold(
