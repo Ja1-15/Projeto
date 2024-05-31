@@ -11,7 +11,8 @@ void main() {
   runApp(MyApp());
 }
 
-//Mexe nisso não!!!
+//Tela principal ta no arquivo map_screen
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
