@@ -1,6 +1,4 @@
 import 'dart:ffi';
-import 'dart:io';
-import 'package:http/http.dart' as http;
 export 'package:apphospital/main.dart';
 
 //Mexe aqui não

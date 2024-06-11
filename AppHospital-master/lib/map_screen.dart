@@ -7,6 +7,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
@@ -47,7 +49,7 @@ class _MapScreenState extends State<MapScreen> {
       var markers = RxSet<Marker>();
       for (var element in mapModel) {
         markers.add(Marker(
-            markerId: MarkerId(element.nome as String),
+            markerId: MarkerId(element.nome),
             position: LatLng(element.latitude, element.longitude),
             icon: BitmapDescriptor.defaultMarkerWithHue(
                 BitmapDescriptor.hueBlue)));
