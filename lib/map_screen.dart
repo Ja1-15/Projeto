@@ -16,8 +16,6 @@ class _MapScreenState extends State<MapScreen> {
       CameraPosition(target: LatLng(32.1560511, 21.4798572), zoom: 20);
   late GoogleMapController _googleMapController;
 
-//Talvez funcione, não consigo testar agora
-
   @override
   Widget build(BuildContext context) {
     List<Post> local = [];
