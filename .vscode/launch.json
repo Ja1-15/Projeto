@@ -5,21 +5,33 @@
     "version": "0.2.0",
     "configurations": [
         {
+<<<<<<< HEAD
             "name": "crud_2-master",
             "cwd": "crud_2-master",
+=======
+            "name": "AppHospital",
+>>>>>>> 094de2fabfaefbe46881ce439d27a9d69c7983f6
             "request": "launch",
             "type": "dart"
         },
         {
+<<<<<<< HEAD
             "name": "crud_2-master (profile mode)",
             "cwd": "crud_2-master",
+=======
+            "name": "AppHospital (profile mode)",
+>>>>>>> 094de2fabfaefbe46881ce439d27a9d69c7983f6
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
+<<<<<<< HEAD
             "name": "crud_2-master (release mode)",
             "cwd": "crud_2-master",
+=======
+            "name": "AppHospital (release mode)",
+>>>>>>> 094de2fabfaefbe46881ce439d27a9d69c7983f6
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
