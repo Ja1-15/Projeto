@@ -1,12 +1,15 @@
-import 'dart:ffi';
-
-class Post{
-  Int? id; 
-  Int? telefone;
-  String? email;
+class Post {
+  String? telefone;
+  int? id;
   String? nome;
+  String? email;
 
-  Post({this.id, this.telefone, this.email, this.nome})
+  Post({this.telefone, this.id, this.nome, this.email});
 
-  Post.fromJson
+  Post.fromJson(Map<String, dynamic> json) {
+    telefone = json['telefone'];
+    id = json['id'];
+    nome = json['nome'];
+    email = json['email'];
+  }
 }
