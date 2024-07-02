@@ -12,4 +12,5 @@ class Post {
     nome = json['nome'];
     email = json['email'];
   }
+  Post.empty();
 }
