@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:teste_jsonlista/post.dart';
 import 'package:teste_jsonlista/routes/app_routes.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:teste_jsonlista/user_form.dart';
 
 class UserList extends StatefulWidget {
   const UserList({super.key});
@@ -14,10 +14,7 @@ class UserList extends StatefulWidget {
 
 }
 class _UserListState  extends State<UserList>{
-  final controller = ScrollController();
-  final dio = Dio();
-  
-  bool isloading = true;
+  final ScrollController scrollController = ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
   int page = 1;
   late Future<List<Post>> _future;
 
@@ -27,42 +24,48 @@ class _UserListState  extends State<UserList>{
   void initState() {
     super.initState();
     _future = getPosts();
-    controller.addListener(loadMoreData);
-    }
+    scrollController.addListener(loadMoreData);
+  }
   @override
   void dispose() {
-    controller.dispose();
+    scrollController.dispose();
     super.dispose();
+  }
+
+  loadMoreData(){
+    if(scrollController.position.pixels == scrollController.position.maxScrollExtent){
+      page++;
+      getPosts();
+    }
   }
 
   Future<List<Post>> getPosts() async {
     int pagesize = 10;
-    var url = Uri.parse("http://154.12.241.153:28888/customers?pageSize=$pagesize&page=$page&search=teste");
+    var url = Uri.parse("http://154.12.241.153:28888/customers?pageSize=$pagesize&page=$page");
     final response = await http.get(url);
     var responseJson = json.decode(response.body);
     final List body = responseJson['data'];
-    final List<Post> new_body = body.map((e) => Post.fromJson(e)).toList();
+    final List<Post> newBody = body.map((e) => Post.fromJson(e)).toList();
     setState(() {
-      lista.addAll(new_body);
+      lista.addAll(newBody);
     });
-    return new_body;
+    return newBody;
   }
-    void loadMoreData(){
-      if (controller.position.pixels == controller.position.maxScrollExtent) {
-        page++;
-        getPosts();
-      }   
-    }
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Lista de Usuarios'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).pushNamed(AppRoutes.USER_FORM);
+            onPressed: (){
+             Navigator.push(
+              context,
+               MaterialPageRoute(
+                 builder: (context) => UserForm()))
+                 .then((value) => setState(() {}));
               },
               )
 
@@ -75,15 +78,15 @@ class _UserListState  extends State<UserList>{
            return Center(
               //UserTile
               child: ListView.builder(
-                controller: controller,
+              controller: scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
             shrinkWrap: false,
             itemCount: snapshot.data?.length,
-            itemBuilder: (BuildContext context, index) {
+            itemBuilder: (BuildContext context, index){
               if(index<snapshot.data!.length){
               final post = lista[index];
               List<Post>? data = snapshot.data;
-              final avatar = const CircleAvatar(child: Icon(Icons.person));
+              const avatar = CircleAvatar(child: Icon(Icons.person));
               return ListTile(
                 leading: avatar,
                 title: Text(data![index].nome.toString(),
@@ -97,7 +100,7 @@ class _UserListState  extends State<UserList>{
                       icon: const Icon(Icons.edit),
                       color: Colors.orange,
                       onPressed: () {
-                        Navigator.of(context).pushNamed(AppRoutes.USER_FORM, arguments: post);
+                        Navigator.of(context).pushNamed(AppRoutes.USER_EDIT, arguments: post);
                       }),
                       IconButton(
                       icon: const Icon(Icons.delete), color: Colors.red, onPressed: () {
@@ -125,10 +128,12 @@ class _UserListState  extends State<UserList>{
             },   
             ),
                 );}
-                else{return  Padding(padding: const EdgeInsets.symmetric(vertical: 32),
+                else{
+              return  const Padding(padding: EdgeInsets.symmetric(vertical: 32),
               child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: const SpinKitThreeBounce(color: Color.fromARGB(255, 144, 25, 212), size: 40,)));};}
+                padding: EdgeInsets.all(10),
+                child: SpinKitThreeBounce(color: Color.fromARGB(255, 144, 25, 212), size: 40,)));
+                }}
       ));
         }
 

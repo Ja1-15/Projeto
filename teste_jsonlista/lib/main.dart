@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:teste_jsonlista/post.dart';
 import 'package:teste_jsonlista/routes/app_routes.dart';
+import 'package:teste_jsonlista/user_edit.dart';
 import 'package:teste_jsonlista/user_form.dart';
 import 'package:teste_jsonlista/view/user_listtile.dart';
 
@@ -15,8 +15,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
       return MaterialApp(
-      home:  UserList(),
-      routes: {AppRoutes.USER_FORM: (_) => UserForm()},
+      home:  const UserList(),
+      routes: {AppRoutes.USER_FORM: (_) => const UserForm(),
+      AppRoutes.USER_EDIT: (_) => const UserEdit()},
       debugShowCheckedModeBanner: false,
       );
   }

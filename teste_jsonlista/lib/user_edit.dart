@@ -4,19 +4,16 @@ import 'package:teste_jsonlista/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:teste_jsonlista/view/user_listtile.dart';
 
-class UserForm extends StatefulWidget {
+class UserEdit extends StatefulWidget {
 
-  const UserForm({super.key});
+  const UserEdit({super.key});
 
   @override
-  State<UserForm> createState() => _UserFormState();
+  State<UserEdit> createState() => _UserEditState();
 }
 
-class _UserFormState extends State<UserForm> {
+class _UserEditState extends State<UserEdit> {
   final _form = GlobalKey<FormState>();
-  final TextEditingController controller_email = TextEditingController();
-  final TextEditingController controller_nome = TextEditingController();
-  final TextEditingController controller_telefone = TextEditingController();
   final Map<String, String> _formData = {};
 
   void _loadFormData(Post? user) {
@@ -27,11 +24,25 @@ class _UserFormState extends State<UserForm> {
     _formData['email'] = user.email!;
     }
   }
+  TextEditingController controller_nome = TextEditingController();
+  TextEditingController controller_email = TextEditingController();
+  TextEditingController controller_telefone = TextEditingController();
+
+   update(){
+    setState(() {
+     controller_nome.text;
+     controller_email.text;
+     controller_telefone.text;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final Post? user = ModalRoute.of(context)!.settings.arguments as Post?;
     _loadFormData(user);
+    controller_nome.value = TextEditingValue(text : _formData["nome"]!);
+    controller_email.value = TextEditingValue(text: _formData["email"]!);
+    controller_telefone.value = TextEditingValue(text: _formData["telefone"]!);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Formulário de Usuário'),
@@ -41,7 +52,7 @@ class _UserFormState extends State<UserForm> {
             onPressed: () {
               final isValid = _form.currentState!.validate();
               if (isValid) {
-                postlist(_formData);
+                updatelist(_formData);
                 _form.currentState?.save();
                  Navigator.push(
                   context,
@@ -61,6 +72,9 @@ class _UserFormState extends State<UserForm> {
               children: [
                 TextFormField(
                   controller: controller_nome,
+                  onChanged: (val){
+                    controller_nome.text = val;
+                  },
                   decoration: const InputDecoration(labelText: 'Nome'),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -72,14 +86,21 @@ class _UserFormState extends State<UserForm> {
                     return null;
                   },
                   onSaved: (value) => _formData['nome'] = value!,
+                  
                 ),
                 TextFormField(
                   controller: controller_email,
+                  onChanged: (val){
+                    controller_email.text = val;
+                  },
                   decoration: const InputDecoration(labelText: 'Email'),
                   onSaved: (value) => _formData['email'] = value!,
                 ),
                 TextFormField(
                   controller: controller_telefone,
+                  onChanged: (val){
+                    controller_telefone.text = val;
+                  },
                   decoration: const InputDecoration(labelText: 'Telefone'),
                   onSaved: (value) => _formData['telefone'] = value!,
                 )
@@ -89,21 +110,17 @@ class _UserFormState extends State<UserForm> {
     );
   }
 
-Future postlist(_formData) async{
-  if(_formData["id"] == null ){
-
-  await http.post(Uri.parse("http://154.12.241.153:28888/customers"),
-  headers: <String, String>{
-    'Content-type' : 'application/json; charset=UTF-8'
-  },
-  body: jsonEncode(
-    {
+Future updatelist(_formData) async{
+    final id = _formData["id"];
+     await http.put(Uri.parse("http://154.12.241.153:28888/customers/$id"),
+    headers: <String, String>{
+      'Content-type' : 'application/json; charset=UTF-8'
+    },
+    body: jsonEncode({
+    "id" : _formData["id"],
     "nome" : controller_nome.text,
     "email" : controller_email.text,
     "telefone" : controller_telefone.text
+    }));
     }
-    )
-  );
-}
-}
 }
