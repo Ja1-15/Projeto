@@ -17,7 +17,7 @@ class _UserListState  extends State<UserList>{
   final ScrollController scrollController = ScrollController(initialScrollOffset: 0.0, keepScrollOffset: true);
   int page = 1;
   late Future<List<Post>> _future;
-
+  bool loading = false;
   List<Post> lista = [];  
 
   @override
@@ -33,23 +33,31 @@ class _UserListState  extends State<UserList>{
   }
 
   loadMoreData(){
-    if(scrollController.position.pixels == scrollController.position.maxScrollExtent){
+    if(scrollController.position.maxScrollExtent == scrollController.position.pixels
+   ){
       page++;
       getPosts();
+
+      print(Text("Data"));
     }
   }
 
   Future<List<Post>> getPosts() async {
     int pagesize = 10;
-    var url = Uri.parse("http://154.12.241.153:28888/customers?pageSize=$pagesize&page=$page");
+    setState(() {
+      loading = true;
+    });
+    var url = Uri.parse("http://154.12.241.153:28888/customers?page=$page&pageSize=$pagesize");
     final response = await http.get(url);
     var responseJson = json.decode(response.body);
     final List body = responseJson['data'];
     final List<Post> newBody = body.map((e) => Post.fromJson(e)).toList();
+    
     setState(() {
       lista.addAll(newBody);
     });
-    return newBody;
+
+    return lista;
   }
   @override
   Widget build(BuildContext context) {
@@ -127,24 +135,33 @@ class _UserListState  extends State<UserList>{
             }
             },   
             ),
+             
                 );}
-                else{
+               if(loading == true){
               return  const Padding(padding: EdgeInsets.symmetric(vertical: 32),
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: SpinKitThreeBounce(color: Color.fromARGB(255, 144, 25, 212), size: 40,)));
+                }
+                else{
+                  return const Padding(padding: EdgeInsets.symmetric(vertical: 32),
+                  child: Padding(padding: EdgeInsets.all(10),
+                  child: Text("No more Data"),),);
                 }}
-      ));
+               
+      ),);
         }
 
  Future<List<Post>> deleteData(int index) async{
         final post = lista[index];
         final deletar = post.id;
+        ///teste
         Uri uri = Uri.parse("http://154.12.241.153:28888/customers/$deletar") ;
         final response = await http.delete(uri);
 
     if (response.statusCode == 200) {
-    return getPosts();
+    lista.removeAt(index);
+    return lista;
   } else {
     throw Exception('Failed to delete album.');
   }
