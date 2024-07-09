@@ -38,14 +38,12 @@ class _UserFormState extends State<UserForm> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: () async {
+            onPressed: () {
               final isValid = _form.currentState!.validate();
               if (isValid) {
-                
-                if ( await postlist(_formData)){
-                  
-                }
+                postlist(_formData);
                 _form.currentState?.save();
+                 
                  Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -92,7 +90,8 @@ class _UserFormState extends State<UserForm> {
     );
   }
 
-Future<bool> postlist(_formData) async{
+Future postlist(_formData) async{
+  if(_formData["id"] == null ){
   final response = await http.post(Uri.parse("http://154.12.241.153:28888/customers"),
   headers: <String, String>{
     'Content-type' : 'application/json; charset=UTF-8'
@@ -105,8 +104,10 @@ Future<bool> postlist(_formData) async{
     }
     )
   );
-  return (response.statusCode == 200);
+
+  return ( response.statusCode == 200 );
+  
 }
   
-  
+}
 }

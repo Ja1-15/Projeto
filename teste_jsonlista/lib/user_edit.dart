@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:teste_jsonlista/post.dart';
 import 'package:http/http.dart' as http;
+import 'package:teste_jsonlista/routes/app_routes.dart';
 import 'package:teste_jsonlista/view/user_listtile.dart';
 
 class UserEdit extends StatefulWidget {
@@ -28,14 +29,6 @@ class _UserEditState extends State<UserEdit> {
   TextEditingController controller_email = TextEditingController();
   TextEditingController controller_telefone = TextEditingController();
 
-   update(){
-    setState(() {
-     controller_nome.text;
-     controller_email.text;
-     controller_telefone.text;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final Post? user = ModalRoute.of(context)!.settings.arguments as Post?;
@@ -49,16 +42,13 @@ class _UserEditState extends State<UserEdit> {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: () {
+            onPressed: () async{
               final isValid = _form.currentState!.validate();
               if (isValid) {
-                updatelist(_formData);
                 _form.currentState?.save();
-                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                  builder: (context) => const UserList()))
-                  .then((value) => setState(() {}));
+                if(await updatelist(_formData)){
+                }
+                 Navigator.pop(context);
               }
             },
           ),
@@ -110,9 +100,9 @@ class _UserEditState extends State<UserEdit> {
     );
   }
 
-Future updatelist(_formData) async{
+Future<bool> updatelist(_formData) async{
     final id = _formData["id"];
-     await http.put(Uri.parse("http://154.12.241.153:28888/customers/$id"),
+    final response = await http.put(Uri.parse("http://154.12.241.153:28888/customers/$id"),
     headers: <String, String>{
       'Content-type' : 'application/json; charset=UTF-8'
     },
@@ -122,5 +112,6 @@ Future updatelist(_formData) async{
     "email" : controller_email.text,
     "telefone" : controller_telefone.text
     }));
+    return response.statusCode == 200;
     }
 }
