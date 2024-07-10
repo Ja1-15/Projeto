@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:teste_jsonlista/post.dart';
 import 'package:teste_jsonlista/routes/app_routes.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:teste_jsonlista/search.dart';
 import 'package:teste_jsonlista/user_form.dart';
 
 class UserList extends StatefulWidget {
@@ -37,8 +38,6 @@ class _UserListState  extends State<UserList>{
    ){
       page++;
       getPosts();
-
-      print(Text("Data"));
     }
   }
 
@@ -53,10 +52,11 @@ class _UserListState  extends State<UserList>{
     final List body = responseJson['data'];
     final List<Post> newBody = body.map((e) => Post.fromJson(e)).toList();
     
+    
     setState(() {
       lista.addAll(newBody);
     });
-
+    
     return lista;
   }
   @override
@@ -67,6 +67,14 @@ class _UserListState  extends State<UserList>{
         title: const Text('Lista de Usuarios'),
         actions: <Widget>[
           IconButton(
+              onPressed: (){
+                showSearch(
+                  context: context,
+                  delegate: CustomSearchDelegate(),
+                );
+              },
+              icon: Icon(Icons.search)),
+          IconButton(
             icon: const Icon(Icons.add),
             onPressed: (){
              Navigator.push(
@@ -75,8 +83,8 @@ class _UserListState  extends State<UserList>{
                  builder: (context) => UserForm()))
                  .then((value) => setState(() {}));
               },
-              )
-
+              ),
+            
         ],
       ),
       body: FutureBuilder<List<Post>>(

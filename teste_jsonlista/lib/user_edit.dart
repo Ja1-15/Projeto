@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:teste_jsonlista/post.dart';
 import 'package:http/http.dart' as http;
-import 'package:teste_jsonlista/routes/app_routes.dart';
-import 'package:teste_jsonlista/view/user_listtile.dart';
 
 class UserEdit extends StatefulWidget {
 
@@ -100,14 +98,14 @@ class _UserEditState extends State<UserEdit> {
     );
   }
 
-Future<bool> updatelist(_formData) async{
-    final id = _formData["id"];
+Future<bool> updatelist(formData) async{
+    final id = formData["id"];
     final response = await http.put(Uri.parse("http://154.12.241.153:28888/customers/$id"),
     headers: <String, String>{
       'Content-type' : 'application/json; charset=UTF-8'
     },
     body: jsonEncode({
-    "id" : _formData["id"],
+    "id" : formData["id"],
     "nome" : controller_nome.text,
     "email" : controller_email.text,
     "telefone" : controller_telefone.text

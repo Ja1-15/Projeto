@@ -90,8 +90,8 @@ class _UserFormState extends State<UserForm> {
     );
   }
 
-Future postlist(_formData) async{
-  if(_formData["id"] == null ){
+Future postlist(formData) async{
+  if(formData["id"] == null ){
   final response = await http.post(Uri.parse("http://154.12.241.153:28888/customers"),
   headers: <String, String>{
     'Content-type' : 'application/json; charset=UTF-8'
