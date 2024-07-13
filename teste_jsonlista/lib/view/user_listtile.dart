@@ -46,7 +46,7 @@ class _UserListState  extends State<UserList>{
     setState(() {
       loading = true;
     });
-    var url = Uri.parse("http://154.12.241.153:28888/customers?page=$page&pageSize=$pagesize");
+    var url = Uri.parse("SUA_API");
     final response = await http.get(url);
     var responseJson = json.decode(response.body);
     final List body = responseJson['data'];

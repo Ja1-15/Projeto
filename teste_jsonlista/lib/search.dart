@@ -78,7 +78,7 @@ class Users {
   List<Post> list = [];
   Future<List<Post>> getUser({String? query})async {
   list.clear();
-  final url = Uri.parse("http://154.12.241.153:28888/customers?search=$query");
+  final url = Uri.parse("SUA_API");
     final response = await http.get(url);
     var responseJson = json.decode(response.body);
     final List body = responseJson['data'];

@@ -100,7 +100,7 @@ class _UserEditState extends State<UserEdit> {
 
 Future<bool> updatelist(formData) async{
     final id = formData["id"];
-    final response = await http.put(Uri.parse("http://154.12.241.153:28888/customers/$id"),
+    final response = await http.put(Uri.parse("SUA_API"),
     headers: <String, String>{
       'Content-type' : 'application/json; charset=UTF-8'
     },
