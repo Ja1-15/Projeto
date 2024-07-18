@@ -1,3 +1,7 @@
+import "package:ecommerce/screens/login_screen.dart";
+import "package:ecommerce/screens/navigationscreen.dart";
+import "package:ecommerce/screens/onboarding_screen.dart";
+import "package:ecommerce/screens/product_screen.dart";
 import "package:ecommerce/screens/splash_screen.dart";
 import "package:flutter/material.dart";
 
@@ -15,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFFEF6969),
       ),
-      home: SplashScreen() ,
+      home: ProductScreen() ,
     );
   }
 }
