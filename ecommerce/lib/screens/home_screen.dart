@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:ecommerce/screens/product_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -214,7 +215,7 @@ final List<Widget> imageSliders = imageList
                                 children: [
                                   InkWell(
                                     onTap: (){
-                        
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProductScreen()));
                                     },
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(15),

@@ -85,6 +85,9 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(onPressed: (){Navigator.pop(context);}, icon: Icon(Icons.arrow_back), iconSize: 30,),
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(

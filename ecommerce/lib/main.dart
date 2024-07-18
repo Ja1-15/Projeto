@@ -1,3 +1,4 @@
+import "package:ecommerce/screens/home_screen.dart";
 import "package:ecommerce/screens/login_screen.dart";
 import "package:ecommerce/screens/navigationscreen.dart";
 import "package:ecommerce/screens/onboarding_screen.dart";
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Color(0xFFEF6969),
       ),
-      home: ProductScreen() ,
+      home: HomeScreen() ,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:ecommerce/screens/cart_screen.dart';
 import 'package:ecommerce/widgets/container_button_model.dart';
 import 'package:flutter/material.dart';
 
@@ -106,11 +107,11 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                   SizedBox(height: 50,),
 
                   InkWell(
-                    onTap: (){
-
-                    },
+                    onTap: (){},
                     child: ElevatedButton(
-                    onPressed: (){},
+                    onPressed: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen()));
+                    },
                     style: ElevatedButton.styleFrom(
                       minimumSize: Size(200, 65),
                       maximumSize: Size(200, 65),
