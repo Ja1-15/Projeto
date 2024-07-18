@@ -109,11 +109,18 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
                     onTap: (){
 
                     },
-                    child: ContainerButtonModel(
-                      itext: "Adicionar ao carrinho",
-                      containerWidth: MediaQuery.of(context).size.width,
-                      bgColor: Color(0xFFEF6969), 
-                    ),
+                    child: ElevatedButton(
+                    onPressed: (){},
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(200, 65),
+                      maximumSize: Size(200, 65),
+                      backgroundColor: Color(0xFFEF6969),
+                     ),
+                    child: Text("Adicionar ao carrinho",
+                    style: TextStyle(
+                      color: Colors.white
+                    ),),
+                    )
                   )
                   
                 ],
@@ -131,7 +138,7 @@ class _ProductDetailsPopupState extends State<ProductDetailsPopup> {
       },
       child: ContainerButtonModel(
         containerWidth: MediaQuery.of(context).size.width / 1.5,
-        itext: "Buy Now",
+        itext: "Comprar",
         bgColor: Color(0xFFEF6969),
       ),
     );

@@ -12,14 +12,14 @@ class ContainerButtonModel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 60,
-      width: 120,
+      width: 150,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: bgColor
       ),
       child: Center(
         child: Text(
-        "Comprar",
+        itext,
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
