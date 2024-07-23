@@ -12,7 +12,7 @@ class ContainerButtonModel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 60,
-      width: 150,
+      width: 190,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: bgColor
