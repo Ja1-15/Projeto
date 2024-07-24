@@ -209,7 +209,6 @@ class _ProductScreenState extends State<ProductScreen> {
                           icon: Icon(Icons.exposure_plus_1),
                           ),
                           SizedBox(width: 10,)
-                          
                           ],
                         ),
                       ),
