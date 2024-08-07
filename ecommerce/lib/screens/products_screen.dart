@@ -1,8 +1,5 @@
 import 'dart:convert';
 import 'package:ecommerce/models/categorias.dart';
-import 'package:ecommerce/routes.dart';
-import 'package:ecommerce/screens/product_view_screen.dart';
-import 'package:ecommerce/screens/sub_categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:prestashop_api/prestashop_api.dart';
@@ -53,43 +50,22 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this );
-    _future = get_cat();
   }
 
-  Future<List<Categoria>?> get_cat()async{
-     final receivedCategories = await prestashop.getCategories(
-      languageId: 2,
-      filter: Filter.anyOf(CategoryFilterField.idParent, values: ['2']),
-      display: const Display(
-        displayFieldList: [
-          CategoryDisplayField.all
-        ],
-      ),
-      sort: Sort(
-        sortFieldOrderList: [SortFieldOrder.ascending(CategorySortField.description)],
-      ),
-    );
-     var data = prettyJson<Category>(
-        tagText: 'Categories',
-        data: receivedCategories.entity,
-        toJsonMap: categoryToJsonMap,
-      );
-
-      List body = json.decode(data);
-
-      return body.map((e) => Categoria.fromJson(e)).toList();
-      
-  }
-
+  
      
   @override
   Widget build(BuildContext context) {
+    final id_p = ModalRoute.of(context)!.settings.arguments;
+    _future = get_cat(id_p.toString());
         return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0.0,
           centerTitle: true,
-          title: Text("Categories", style: TextStyle(
+          leading: IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back),
+          ),
+          title: Text("Produtos", style: TextStyle(
             fontFamily: 'Varela', fontSize: 20, color: Color(0xFF545D68),
           ),),
           actions: <Widget>[
@@ -100,13 +76,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
           FutureBuilder<List<Categoria>?>(
             future: _future,
             builder: (context, snapshot){           
-               if(snapshot.hasData == true){         
-               final posts = snapshot.data;
-               return build_cards(posts);  
-              }
-              else{
-                return Align(alignment: Alignment.center,child: CircularProgressIndicator());
-              }                    
+               final posts = snapshot.data!;
+               return build_cards(posts);                  
             }
             
           )
@@ -114,16 +85,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
         );
     
   }
-  Widget build_cards(List<Categoria>? posts){
+  Widget build_cards(List<Categoria> posts){
 
    return GridView.builder( 
-   itemCount: posts?.length,
+   itemCount: posts.length,
    itemBuilder: (context, index) {
-    final post = posts?[index];
+    final post = posts[index];
           return InkWell(
-                    onTap: (){
-                     Navigator.of(context).pushNamed(AppRoutes.SUB_CATEGORIES, arguments: post.id);
-                    },
+                    onTap: (){},
                     child: Column(
                       children: [
                         Align(
@@ -148,7 +117,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
                                               ),
                                             ),
                                             Text(
-                                              post!.name.toString(),
+                                              post.name.toString(),
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
@@ -170,5 +139,30 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
    mainAxisSpacing: 5,
    crossAxisSpacing: 5),
    );
-  }           
+  }
+   Future<List<Categoria>?> get_cat(String? id_p)async{
+     final receivedCategories = await prestashop.getCategories(
+      languageId: 2,
+      filter: Filter.anyOf(CategoryFilterField.idParent, values: ['$id_p']),
+      display: const Display(
+        displayFieldList: [
+          CategoryDisplayField.all
+        ],
+      ),
+      sort: Sort(
+        sortFieldOrderList: [SortFieldOrder.ascending(CategorySortField.description)],
+      ),
+    );
+     var data = prettyJson<Category>(
+        tagText: 'Categories',
+        data: receivedCategories.entity,
+        toJsonMap: categoryToJsonMap,
+      );
+
+      List body = json.decode(data);
+
+      return body.map((e) => Categoria.fromJson(e)).toList();
+      
+  }
+          
 }

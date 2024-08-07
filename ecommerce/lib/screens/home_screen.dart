@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ecommerce/screens/product_screen.dart';
+import 'package:ecommerce/screens/product_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml2json/xml2json.dart';
