@@ -3,13 +3,16 @@ import 'package:ecommerce/widgets/product_details_popup.dart';
 import 'package:fan_carousel_image_slider/fan_carousel_image_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 
 
-  final List imageList = [
-    "https://img.freepik.com/fotos-gratis/tags-com-venda-da-palavra_1156-327.jpg",
-    "https://img.freepik.com/psd-premium/oferta-amarela-e-vermelha-com-megafone_658787-116.jpg?semt=ais_user"
-    
-  ];
+
+  var lista = [];
+  var banner_link = [];
+  var lista_bloco =[];
+  String url_base = "https://b2b.redemachado.com.br";
+
 class ProductScreen extends StatefulWidget {
 
   @override
@@ -24,8 +27,54 @@ class _ProductScreenState extends State<ProductScreen> {
     "images/image4.jpg",
   ];
   int counter = 1;
+  
+  Future<List> getdata() async {
+   
+    var uri = Uri.parse("https://b2b.redemachado.com.br/api/mobikul/gethomepage?width=720&ws_key=6YHPSTEE8JDS3EHCSXSG7BQ5A55ALJJA&id_lang=2");
+    var response = await http.get(uri);
+    final temporaryList = [] ;
+// 
 
-  final List<Widget> imageSliders = imageList
+//
+
+    final document2 = xml.XmlDocument.parse(response.body);
+    final prestashop2 = document2.findElements('prestashop').first;
+    final product_block = prestashop2.findElements('product_block').first;
+    final blocks = product_block.findElements('block');
+
+// 
+    for (final block in blocks) {
+
+      final id = block.findElements('id_product_block').first.text;
+      final title = block.findElements('title').first.text;
+
+      lista_bloco.addAll([{'block': title}]);
+
+    
+      /// produtos
+      final products = block.findElements('products').first;
+      final product = products.findElements('product');
+
+      for (final prod in product) {
+
+        final idProd = prod.findElements('id_product').first.text;
+        final nameProd = prod.findElements('name').first.text;
+        final price = prod.findAllElements('price').first.text;
+        final image = prod.findAllElements('image_link').first.text;
+        
+     temporaryList.addAll([{ }]);
+      
+    }
+      }
+    ///
+    setState(() {
+      lista = temporaryList;
+    });
+
+    return lista;
+  }
+
+  final List<Widget> imageSliders = banner_link
     .map((item) => Container(
           child: Container(
             margin: EdgeInsets.all(5.0),
@@ -52,7 +101,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         padding: EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 20.0),
                         child: Text(
-                          'No. ${imageList.indexOf(item)} image',
+                          'No. ${banner_link.indexOf(item)} image',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.0,
@@ -103,7 +152,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     options: CarouselOptions(
                       autoPlay: true,
                     ),
-                    items: imageList
+                    items: banner_link
                         .map((item) => Container(
                               child: Center(
                                   child:
@@ -139,24 +188,6 @@ class _ProductScreenState extends State<ProductScreen> {
                       color: Color.fromARGB(241, 9, 197, 40)
                     ),)
                   ],
-                ),
-                SizedBox(height: 10,),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: RatingBar.builder(
-                    initialRating: 3,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: true,
-                    itemCount: 5,
-                    itemSize: 25,
-                    itemPadding: EdgeInsets.symmetric(horizontal: 1),
-                    itemBuilder: (context, _) => Icon(
-                    Icons.star,
-                    color: Colors.amber,),
-                    onRatingUpdate: (rating) {
-                    },
-                  ),
                 ),
                 SizedBox(height: 10,),
 
@@ -213,7 +244,6 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
                       ),
                     ),
-                    ProductDetailsPopup()
                   ],
                 ),
                 

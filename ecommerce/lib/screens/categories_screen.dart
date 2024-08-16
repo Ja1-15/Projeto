@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:ecommerce/models/categorias.dart';
 import 'package:ecommerce/routes.dart';
 import 'package:ecommerce/screens/product_view_screen.dart';
-import 'package:ecommerce/screens/sub_categories_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:prestashop_api/prestashop_api.dart';
 
 String prettyJson<T>({
@@ -24,7 +22,7 @@ String prettyJson<T>({
   return prettyPrinted;
 
 }
-
+List xml = []; 
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -35,9 +33,13 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;  
-  late Future<List<Categoria>?> _future;
+  var _future;
   var index;
-  final logger = Logger();
+  @override
+  void initState() {
+    super.initState();
+    _future = get_cat('2');
+  }
 
   final prestashop = PrestashopApi(
     BaseConfig(
@@ -47,19 +49,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
     ),
   );
 
-
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this );
-    _future = get_cat();
-  }
-
-  Future<List<Categoria>?> get_cat()async{
+  Future<void> get_cat(String? id)async{
      final receivedCategories = await prestashop.getCategories(
       languageId: 2,
-      filter: Filter.anyOf(CategoryFilterField.idParent, values: ['2']),
+      filter: Filter.anyOf(CategoryFilterField.idParent, values: ['$id']),
       display: const Display(
         displayFieldList: [
           CategoryDisplayField.all
@@ -76,15 +69,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
       );
 
       List body = json.decode(data);
+      body.map((e) => Categoria.fromJson(e)).toList();
 
-      return body.map((e) => Categoria.fromJson(e)).toList();
+
+      return xml.addAll(body); 
       
   }
 
      
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
         return Scaffold(
+          backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0.0,
@@ -97,12 +93,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
           ],
         ),
         body:
-          FutureBuilder<List<Categoria>?>(
+          FutureBuilder(
             future: _future,
             builder: (context, snapshot){           
                if(snapshot.hasData == true){         
                final posts = snapshot.data;
-               return build_cards(posts);  
+               return build_cards(posts as List<Categoria>?);  
               }
               else{
                 return Align(alignment: Alignment.center,child: CircularProgressIndicator());
@@ -115,60 +111,64 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
     
   }
   Widget build_cards(List<Categoria>? posts){
-
-   return GridView.builder( 
-   itemCount: posts?.length,
-   itemBuilder: (context, index) {
-    final post = posts?[index];
-          return InkWell(
-                    onTap: (){
-                     Navigator.of(context).pushNamed(AppRoutes.SUB_CATEGORIES, arguments: post.id);
-                    },
-                    child: Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: Card(
-                                  child: Container(
-                                    height: 160,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        ),
-                                    margin: EdgeInsets.all(5),
-                                    padding: EdgeInsets.all(5),
-                                    child: Stack(
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Expanded(
-                                              child: Image.asset(
-                                                "images/hortifruti.jpg",
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Text(
-                                              post!.name.toString(),
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                        ),
-                      ],
+   return Column(
+     children: [
+      SizedBox(height: 15,),
+       TextFormField(
+          decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search,
+              color: Color(0xFFEF6969),),
+              border: InputBorder.none,
+              label: Text("Procurar produto",
+              style: TextStyle(),),
+              ),
+         ),
+         SizedBox(height: 30,),
+         Align(
+                    alignment: Alignment.topLeft,
+                    child: Text("Categorias",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w500
+                    ),),
+                  ),
+       SizedBox(height: 15,),
+       Container(
+        height: 90,
+         child: ListView.builder(
+                itemCount: posts?.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index){
+                final post = posts?[index];
+                return Column(
+                  children: [
+                    Container(
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.symmetric(horizontal: 15),
+                        width: 65,
+                        height: 65,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Image(image: AssetImage("images/store_icon.png")),
+                            ),
                     ),
-                  );
-   }, 
-   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-   crossAxisCount: 2,
-   mainAxisSpacing: 5,
-   crossAxisSpacing: 5),
+                    Container(
+                      width: 80,
+                      child: Text(post!.name.toString(),style: TextStyle(
+                        overflow: TextOverflow.ellipsis
+                      ),),
+                    )
+                  ],
+                );
+                        }
+                        
+                        ),
+       ),
+     ],
    );
+              
+          
+  }
   }           
-}

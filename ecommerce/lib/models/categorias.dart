@@ -3,8 +3,7 @@ class Categoria {
   String? name;
   List? subcategories;
   List? products;
- 
-
+  
   Categoria({this.id, this.name, this.products, this.subcategories});
 
   Categoria.fromJson(Map<String, dynamic> json) {

@@ -1,13 +1,16 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/screens/product_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:xml2json/xml2json.dart';
+import 'package:xml/xml.dart' as xml;
 
 
 
-final List imageList = [];
+var lista = [];
+var banner_link = [];
+var lista_bloco =[];
 String url_base = "https://b2b.redemachado.com.br";
 
 class HomeScreen extends StatefulWidget {
@@ -17,63 +20,77 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-    Xml2Json xml2json = Xml2Json();
-    late Future<List> _future;
+    var _future;
 
   @override
   void initState() {
   super.initState();
-    _future = getBanner();
+    _future = getdata();
   }
-    Future<List> getBanner() async {
-    var url = Uri.parse("$url_base/api/mobikul/gethomepage?width=720&ws_key=6YHPSTEE8JDS3EHCSXSG7BQ5A55ALJJA&id_lang=2");
-    final http.Response response = await http.get(url);
-    xml2json.parse(response.body);
-    var jsondata = xml2json.toGData();
-    var data = json.decode(jsondata); 
-    var prestashop = data["prestashop"];
-    var banners = prestashop["banners"];
-    var banner = banners["banner"];
-    var image_link = banner["image_link"];
-    imageList.add(image_link["__cdata"]);
 
-    return imageList;
-  }
+  Future<List> getdata() async {
+   
+    var uri = Uri.parse("https://b2b.redemachado.com.br/api/mobikul/gethomepage?width=720&ws_key=6YHPSTEE8JDS3EHCSXSG7BQ5A55ALJJA&id_lang=2");
+    var response = await http.get(uri);
+    final temporaryList = [] ;
+//
+    final document = xml.XmlDocument.parse(response.body);
+    final prestashop = document.findElements('prestashop').first;
+    final banners = prestashop.findElements('banners').first;
+    final banner = banners.findElements('banner');
+
+// 
+      for (var link in banner){
+      final image_link = link.findElements('image_link').first.text;
+      final id_page = link.findElements('id_page').first.text;
+
+      banner_link.add(image_link); 
+      }   
+
+///
+
+    final document2 = xml.XmlDocument.parse(response.body);
+    final prestashop2 = document2.findElements('prestashop').first;
+    final product_block = prestashop2.findElements('product_block').first;
+    final blocks = product_block.findElements('block');
+
+// 
+    for (final block in blocks) {
+
+      final id = block.findElements('id_product_block').first.text;
+      final title = block.findElements('title').first.text;
+
+      lista_bloco.addAll([{'block': title}]);
+
     
+      /// produtos
+      final products = block.findElements('products').first;
+      final product = products.findElements('product');
 
-  List tabs = [
-    "All", "Category", "Top", "Recommended"
-  ];
+      for (final prod in product) {
 
-  List imgList = [
-    "images/image1.jpg",
-    "images/image2.jpg",
-    "images/image3.jpg",
-    "images/image4.jpg",
-  ];
+        final idProd = prod.findElements('id_product').first.text;
+        final nameProd = prod.findElements('name').first.text;
+        final price = prod.findAllElements('price').first.text;
+        final image = prod.findAllElements('image_link').first.text;
+        
+     temporaryList.addAll([{'block' : title, 'id_block': id, 'name_prod': nameProd, 'price' : price, 'id_prod': idProd, 'image_prod': image }]);
 
-  List productTitle = [
-    "Warm Zipper",
-    "Knitted Wool",
-    "Zipper Win",
-    "Child Win", 
-  ];
+      }
+      
+    }
+    
+    ///
+    setState(() {
+      lista = temporaryList;
+    });
 
-  List prices = [
-    "\$300",
-    "\$650",
-    "\$50",
-    "\$100"
-  ];
+    return lista;
+  }
 
-  List reviews = [
-    "54",
-    "120",
-    "542",
-    "534",
-  ];
+  List tabs = [];
 
-final List<Widget> imageSliders = imageList
+final List<Widget> imageSliders = banner_link
     .map((item) => Container(
           child: Container(
             margin: EdgeInsets.all(5.0),
@@ -100,7 +117,7 @@ final List<Widget> imageSliders = imageList
                         padding: EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 20.0),
                         child: Text(
-                          'No. ${imageList.indexOf(item)} image',
+                          'No. ${banner_link.indexOf(item)} image',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20.0,
@@ -115,81 +132,156 @@ final List<Widget> imageSliders = imageList
         ))
     .toList();
 
+
   @override
   Widget build(BuildContext context) {
+    int i;
+    i = 0; 
     return Scaffold(
       appBar: AppBar(
         title: Align(alignment: Alignment.center, child: Text("Home Screen")),
       ),
-      body: FutureBuilder<List>(
-        future: _future,
-        builder: (context, snapshot){
-        return SingleChildScrollView(
-          child: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(left: 15, right: 15, top: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: 
+         FutureBuilder<List>(
+          future: _future,
+           builder: (context,snapshot) {
+             if(snapshot.hasData == true){
+             return SingleChildScrollView(
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 15, right: 15, top: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        height: 50,
-                        width: MediaQuery.of(context).size.width / 1.5,
-                        decoration: BoxDecoration(                      
-                          color: Colors.black12.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(5),
+                            height: 50,
+                            width: MediaQuery.of(context).size.width - 30,
+                            decoration: BoxDecoration(                      
+                              color: Colors.black12.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(Icons.search,
+                                  color: Color(0xFFEF6969),),
+                                  border: InputBorder.none,
+                                  label: Text("Find your product",
+                                  style: TextStyle(),),
+                                ),
+                              ),    
                           ),
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.search,
-                              color: Color(0xFFEF6969),),
-                              border: InputBorder.none,
-                              label: Text("Find your product",
-                              style: TextStyle(),),
-                            ),
-                          ),    
+                        ],
                       ),
-                      Container(
-                        height: 50,
-                        width: MediaQuery.of(context).size.width / 6,
-                        decoration: BoxDecoration(
-                          color: Colors.black12.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Icon(Icons.notifications_none,
-                          color: Color(0xFFEF6969),
-                          ),
-                        ),
-                      ),
+                      SizedBox(height: 20,),
+                      buildImage(),
+                      SizedBox(height: 20),
+                      buildTabs(),
+                      SizedBox(height: 20,),
+                      Align(alignment: Alignment.centerLeft,child: Text(lista_bloco[i]['block'], style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),)),
+                      buildList(lista_bloco[i++]['block']),
+                      SizedBox(height: 20,),
+                      buildImage(),
+                      SizedBox(height: 20),
+                      Align(alignment: Alignment.centerLeft,child: Text(lista_bloco[i]['block'], style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),)),
+                      buildList(lista_bloco[i]['block'])
                     ],
                   ),
-                  SizedBox(height: 20,),
-                  Container(
+                ),
+              ),
+                     );
+           }
+           else{
+            return Align(alignment: Alignment.center, child: CircularProgressIndicator());
+           }
+           }
+         )
+    );
+      }
+      Widget buildImage(){
+       return Container(
                     height: 70,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: CarouselSlider(
                       options: CarouselOptions(
                         autoPlay: true,
                       ),
-                      items: imageList
+                      items: banner_link
                           .map((item) => Container(
                                 child: Center(
                                     child:
-                                        Image.network(item, fit: BoxFit.cover, width: 1000)),
+                                        Image.network(item.toString(), fit: BoxFit.cover, width: 1000, height: 70,)),
                               ))
                           .toList(),
                           ),
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(
+                  );
+      }
+
+       buildList(String condition){
+          return  Container(
+                    height: 250,
+                    child: ListView.builder(
+                      itemCount: lista.length,
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      itemBuilder:(context, index){
+                          if(lista[index]['block'].contains(condition)){
+                          return InkWell(
+                          onTap: (){
+                             Navigator.push(context, MaterialPageRoute(builder: (context) => ProductScreen()));
+                          },
+                          child: Card(
+                            color: Colors.white,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 150,
+                                  width: 180,
+                                  child: Image.network(lista[index]["image_prod"]),
+                                ),
+                                SizedBox(height: 10,),
+                                Container(
+                                  padding: EdgeInsets.only(left: 10),
+                                  width: 180,
+                                  height: 50,
+                                  child: Text(lista[index]['name_prod'],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),),
+                                ),
+                                    Container(
+                                      padding: EdgeInsets.only(left: 10),
+                                      child: Text(lista[index]["price"],
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: const Color.fromARGB(255, 23, 161, 25),
+                                        fontWeight: FontWeight.bold,                              
+                                      ),),
+                                    ),                            
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      else{
+                        return Container();
+                      }
+                        
+      }),
+                  );
+        }
+      Widget buildTabs(){
+        return SizedBox(
                     height: 50,
                     child: ListView.builder(
                       shrinkWrap: true,
@@ -218,206 +310,9 @@ final List<Widget> imageSliders = imageList
                         ),
                       );
                     } ),
-                  ),
-                  SizedBox(height: 20,),
-        
-                  //OFERTAS
-        
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Ofertas",
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold
-                    ),),
-                  ),
-                  SizedBox(height: 10,),
-                  Container(
-                    height: 250,
-                    child: ListView.builder(
-                      itemCount: imgList.length,
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemBuilder:(context, index){
-                        return Container(
-                          margin: EdgeInsets.only(right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 150,
-                                child: Stack(
-                                  children: [
-                                    InkWell(
-                                      onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ProductScreen()));
-                                      },
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: Image.asset(imgList[index]),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 10,
-                                      top: 10,
-                                      child: Container(
-                                        height: 30,
-                                        width: 30,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Center(
-                                          child: Icon(Icons.favorite,
-                                          size: 18,
-                                          ),
-                                          ),
-                                      ), 
-                                      ),
-                                ],),
-                              ),
-                              SizedBox(height: 10,),
-                              Text(productTitle[index],
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-        
-                              ),),
-                               SizedBox(height: 10,),
-                              Row(
-                                children: [
-                                  Icon(Icons.star, color: Colors.amber, size: 22,),
-                                  Text('('+reviews[index]+')'),
-                                  SizedBox(width: 10,),
-                                  Text(prices[index],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,                              
-                                  ),),
-                                  SizedBox(width: 10,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      ),
-                  ),
-                  Container(
-                    height: 70,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFFFF0DD),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        autoPlay: true,
-                      ),
-                      items: imageList
-                          .map((item) => Container(
-                                child: Center(
-                                    child:
-                                        Image.network(item, fit: BoxFit.cover, width: 1000)),
-                              ))
-                          .toList(),
-                          ),
-                  ),
-                  SizedBox(height: 15),
-        
-                  //MAIS COMPRADOS
-        
-        
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text("Mais Comprados",
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold
-                    ),),
-                  ),
-                  SizedBox(height: 10,),
-                  Container(
-                    height: 250,
-                    child: ListView.builder(
-                      itemCount: imgList.length,
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemBuilder:(context, index){
-                        return Container(
-                          margin: EdgeInsets.only(right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 150,
-                                child: Stack(
-                                  children: [
-                                    InkWell(
-                                      onTap: (){
-                          
-                                      },
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(15),
-                                        child: Image.asset(imgList[index]),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      right: 10,
-                                      top: 10,
-                                      child: Container(
-                                        height: 30,
-                                        width: 30,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Center(
-                                          child: Icon(Icons.favorite,
-                                          size: 18,
-                                          ),
-                                          ),
-                                      ), 
-                                      ),
-                                ],),
-                              ),
-                              SizedBox(height: 10,),
-                              Text(productTitle[index],
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-        
-                              ),),
-                               SizedBox(height: 10,),
-                              Row(
-                                children: [
-                                  Icon(Icons.star, color: Colors.amber, size: 22,),
-                                  Text('('+reviews[index]+')'),
-                                  SizedBox(width: 10,),
-                                  Text(prices[index],
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,                              
-                                  ),),
-                                  SizedBox(width: 10,)
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-        
-        }
-      ),
-    );
-  }
+                  );
+      }
+
 }
+        
+        

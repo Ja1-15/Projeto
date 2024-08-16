@@ -49,7 +49,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
           CupertinoIcons.profile_circled
         ],
         inactiveColor: Colors.black.withOpacity(0.5),
-        activeColor: Color(0xFFEF6969),
         gapLocation: GapLocation.center,
         activeIndex: pageIndex, 
         notchSmoothness: NotchSmoothness.softEdge,
