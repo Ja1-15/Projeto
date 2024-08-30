@@ -1,12 +1,12 @@
-class Categoria {
+class Categorias {
   int? id;
   String? name;
   List? subcategories;
   List? products;
   
-  Categoria({this.id, this.name, this.products, this.subcategories});
+  Categorias({this.id, this.name, this.products, this.subcategories});
 
-  Categoria.fromJson(Map<String, dynamic> json) {
+  Categorias.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     products = json['associations']['products'];

@@ -11,7 +11,7 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;  
-  late Future<List<Categoria>?> _future;
+  late Future<List<Categorias>?> _future;
   var index;
 
 
@@ -42,7 +42,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
           ],
         ),
         body:
-          FutureBuilder<List<Categoria>?>(
+          FutureBuilder<List<Categorias>?>(
             future: _future,
             builder: (context, snapshot){           
                final posts = snapshot.data!;
@@ -54,7 +54,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
         );
     
   }
-  Widget build_cards(List<Categoria> posts){
+  Widget build_cards(List<Categorias> posts){
 
    return GridView.builder( 
    itemCount: posts.length,
@@ -109,7 +109,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerPr
    crossAxisSpacing: 5),
    );
   }
-   Future<List<Categoria>?> get_cat(String? id_p)async{
+   Future<List<Categorias>?> get_cat(String? id_p)async{
      
       
   }

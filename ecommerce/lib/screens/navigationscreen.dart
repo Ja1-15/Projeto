@@ -19,7 +19,6 @@ class _NavigationscreenState extends State<Navigationscreen> {
   int pageIndex = 0;
   List<Widget> pages = [
     HomeScreen(),
-    CategoriesScreen(),
     FavoritesScreen(),
     ProfileScreen()
     ];
