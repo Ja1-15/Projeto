@@ -35,11 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List> getdata() async {
-   
+   final temporaryList = [] ;
+
     var uri = Uri.parse("https://b2b.redemachado.com.br/api/mobikul/gethomepage?width=720&ws_key=6YHPSTEE8JDS3EHCSXSG7BQ5A55ALJJA&id_lang=2");
     var response = await http.get(uri);
-    final temporaryList = [] ;
-//
     final document = xml.XmlDocument.parse(response.body);
     final prestashop = document.findElements('prestashop').first;
     final banners = prestashop.findElements('banners').first;
@@ -101,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final prestashop2 = document2.findElements('prestashop').first;
       final categoria = prestashop2.findElements('category').first;
       final name = categoria.findElements('name').first.text;
-      final id = categoria.findElements('id').first.text;
-      temporaryList2.addAll([{'name' : name, 'id': id}].toList());
+      final idcategoria_parent = categoria.findElements('id').first.text;
+      temporaryList2.addAll([{'name' : name, 'id': idcategoria_parent}]);
     }
-    ///
+       ///
     setState(() {
       lista = temporaryList;
       categorias = temporaryList2;
@@ -354,6 +353,6 @@ final List<Widget> imageSliders = banner_link
                       );
                     } ));
       }
-      
+     
       
 }

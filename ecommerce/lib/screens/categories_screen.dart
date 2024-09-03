@@ -108,11 +108,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   );
   }
   getData(String id_parent)async{
-
   var temporaryList = [];
-
+  
   var uri = Uri.parse('https://b2b.redemachado.com.br/api/categories/?filter[id_parent]=$id_parent');
-                        
   var response = await http.get(uri, headers: {HttpHeaders.authorizationHeader: 'Basic $auth'});
   final document = xml.XmlDocument.parse(response.body);
   final prestashop = document.findElements('prestashop').first;
@@ -121,16 +119,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   for(final cg in categ){
     var id = cg.getAttribute('id');
-
     var uri2 = Uri.parse('https://b2b.redemachado.com.br/api/categories/?filter[id_parent]=$id');
     var response2 = await http.get(uri2, headers: {HttpHeaders.authorizationHeader : 'Basic $auth'});
     final document2 = xml.XmlDocument.parse(response2.body);
     final prestashop2 = document2.findElements('prestashop').first;
     final categories2 = prestashop2.findElements('categories').first;
     final c = categories2.findElements('category');
+    
     for(final cat in c){
       var id_cat = cat.getAttribute('id');
-
       var uri3 = Uri.parse('https://b2b.redemachado.com.br/api/categories/$id_cat');
       var response3 = await http.get(uri3, headers: {HttpHeaders.authorizationHeader : 'Basic $auth'});
       final document3 = xml.XmlDocument.parse(response3.body);
@@ -139,13 +136,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       final name2 = category3.findAllElements('name');
       final associations2 = category3.findElements('associations').first;
       final products2 = associations2.findElements('products').first;
-      final product2 = products2.findAllElements('product'); 
-
-      category_name.add([{'nome_categoria' : name2}]);
+      final product2 = products2.findAllElements('product');
     
       for(final prod in product2){
           var link2 = prod.getAttribute('xlink:href');
-
           var uri4 = Uri.parse(link2.toString());
           var response4 = await http.get(uri4, headers: {HttpHeaders.authorizationHeader: 'Basic $auth'});
           final document = xml.XmlDocument.parse(response4.body);
@@ -166,9 +160,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           temporaryList.addAll([{ 'id': idProd, 'name_prod': nameProd, 'price' : price, 'id_prod': idProd, 'image_prod': 'No Data' }]);
            }
            }
-
-        lista_prod = temporaryList; 
-            
+        lista_prod = temporaryList;            
       }
     }  
     print(category_name);  
