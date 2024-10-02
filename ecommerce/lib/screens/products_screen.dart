@@ -1,117 +1,221 @@
-import 'dart:convert';
-import 'package:ecommerce/models/categorias.dart';
+import 'package:ecommerce/routes.dart';
+import 'package:ecommerce/widgets/container_button_model.dart';
 import 'package:flutter/material.dart';
 
-class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key});
+List<Map<String, dynamic>> cart_prod = [{}];
 
+class ProductScreen extends StatefulWidget {
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
+  State<ProductScreen> createState() => _ProductScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;  
-  late Future<List<Categorias>?> _future;
-  var index;
+class _ProductScreenState extends State<ProductScreen> {
+  int counter = 1;
+  Map<String, String?> info = {};
 
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this );
+  void incrementCounter() {
+    setState(() {
+      counter++;
+    });
   }
 
-  
-     
+  void decrementCounter() {
+    if (counter > 1) {
+      setState(() {
+        counter--;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final id_p = ModalRoute.of(context)!.settings.arguments;
-    _future = get_cat(id_p.toString());
-        return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0.0,
-          centerTitle: true,
-          leading: IconButton(onPressed: (){}, icon: Icon(Icons.arrow_back),
-          ),
-          title: Text("Produtos", style: TextStyle(
-            fontFamily: 'Varela', fontSize: 20, color: Color(0xFF545D68),
-          ),),
-          actions: <Widget>[
-            IconButton(onPressed: (){}, icon: Icon(Icons.notifications_none))
-          ],
-        ),
-        body:
-          FutureBuilder<List<Categorias>?>(
-            future: _future,
-            builder: (context, snapshot){           
-               final posts = snapshot.data!;
-               return build_cards(posts);                  
-            }
-            
-          )
-          
-        );
-    
-  }
-  Widget build_cards(List<Categorias> posts){
+    info = ModalRoute.of(context)!.settings.arguments as Map<String, String?>;
 
-   return GridView.builder( 
-   itemCount: posts.length,
-   itemBuilder: (context, index) {
-    final post = posts[index];
-          return InkWell(
-                    onTap: (){},
-                    child: Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.topCenter,
-                          child: Card(
-                                  child: Container(
-                                    height: 160,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        ),
-                                    margin: EdgeInsets.all(5),
-                                    padding: EdgeInsets.all(5),
-                                    child: Stack(
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Expanded(
-                                              child: Image.asset(
-                                                "images/hortifruti.jpg",
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Text(
-                                              post.name.toString(),
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                        ),
-                      ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back),
+          iconSize: 30,
+        ),
+      ),
+      body: _buildProductDetails(),
+    );
+  }
+
+  Widget _buildProductDetails() {
+    final String imageUrl = info['image_prod'].toString();
+    final String productName = info['name_prod'].toString();
+    final String price = info['price'].toString();
+    final String description = info['description'].toString();
+    return SingleChildScrollView(
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Product Image
+              Image.network(
+                imageUrl,
+                height: 350,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.fitHeight,
+              ),
+
+              // Divider between the image and the rest of the content
+              const SizedBox(height: 20),
+              const Divider(
+                thickness: 5, // Thickness of the divider
+                color: Colors.amber, // Color of the divider
+              ),
+              const SizedBox(height: 20),
+
+              // Product Header: Name and Price
+              _buildProductHeader(productName, price),
+
+              const SizedBox(height: 10),
+
+              // Product Description
+              _buildProductDescription(description),
+
+              const SizedBox(height: 20),
+
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: const Text(
+                    "Quantidade",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
                     ),
-                  );
-   }, 
-   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-   crossAxisCount: 2,
-   mainAxisSpacing: 5,
-   crossAxisSpacing: 5),
-   );
+                  ),
+                ),
+              ),
+
+              // Quantity Selector
+              _buildQuantitySelector(),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
   }
-   Future<List<Categorias>?> get_cat(String? id_p)async{
-     
-      
+
+  Widget _buildProductHeader(String name, String price) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            name,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 5,
+        ),
+        Text(
+          price,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+            color: Color.fromARGB(241, 9, 197, 40),
+          ),
+        ),
+      ],
+    );
   }
-          
+
+  Widget _buildProductDescription(String description) {
+    if (info.containsKey('description')) {
+      return Align(
+        alignment: Alignment.bottomLeft,
+        child: Text(
+          info['description'] ?? "",
+          style: const TextStyle(
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),
+        ),
+      );
+    } else {
+      return Align(
+        alignment: Alignment.bottomLeft,
+        child: const Text(
+          "",
+          style: TextStyle(
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildQuantitySelector() {
+    return Row(children: [
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                height: 60,
+                width: 150,
+                decoration: BoxDecoration(
+                  color: const Color(0x1F989797),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        onPressed: decrementCounter,
+                        icon: const Icon(Icons.exposure_minus_1),
+                      ),
+                      Text("$counter"),
+                      IconButton(
+                        onPressed: incrementCounter,
+                        icon: const Icon(Icons.exposure_plus_1),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      SizedBox(
+        width: 4,
+      ),
+      InkWell(
+        onTap: () {
+          info.addAll({'quantidade': counter.toString()});
+          cart_prod.add(info);
+        },
+        child: ContainerButtonModel(
+          itext: 'Comprar',
+          bgColor: Colors.green,
+        ),
+      ),
+    ]);
+  }
 }

@@ -1,6 +1,4 @@
 import 'package:ecommerce/screens/order_confirm_screen.dart';
-import 'package:ecommerce/screens/order_success_screen.dart';
-import 'package:ecommerce/screens/shipping_adress_screen.dart';
 import 'package:ecommerce/widgets/container_button_model.dart';
 import 'package:flutter/material.dart';
 

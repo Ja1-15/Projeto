@@ -1,5 +1,4 @@
 
-import 'package:ecommerce/screens/login_screen.dart';
 import 'package:ecommerce/screens/otp_screen.dart';
 import 'package:ecommerce/screens/recovery_screen.dart';
 import 'package:flutter/cupertino.dart';
