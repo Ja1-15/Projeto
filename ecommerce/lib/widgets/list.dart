@@ -56,9 +56,12 @@ class _Lista_produtosState extends State<Lista_produtos>
   }
 
   Widget buildProductCard(Map<String, dynamic> info) {
-    var amount = formatCurrencyBRL(double.parse(info['price']));
+    var rep = info['price'].toString().replaceAll("R\$ ", '');
+    var amount = formatCurrencyBRL(double.parse(rep));
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.PRODUCTS, arguments: info);
+      },
       child: SizedBox(
         height: 300,
         width: 170,
@@ -71,9 +74,9 @@ class _Lista_produtosState extends State<Lista_produtos>
               Container(
                 height: 100,
                 width: 170,
-                child: info['image_prod'] != null
+                child: info['image'] != null
                     ? Image.network(
-                        info['image_prod']!,
+                        info['image']!,
                         fit: BoxFit.fitHeight,
                         headers: {
                           HttpHeaders.authorizationHeader: 'Basic $auth'
@@ -106,7 +109,7 @@ class _Lista_produtosState extends State<Lista_produtos>
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  info['name_prod'] ?? 'No Name',
+                  info['nameProd'] ?? 'No Name',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),

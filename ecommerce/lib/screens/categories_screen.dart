@@ -137,10 +137,10 @@ subcat(String id_categoria) async {
           {
             'idProduct': idPr,
             'id_category_default': id_parent,
-            'name_prod': namePr,
+            'nameProd': namePr,
             'description': desc,
             'price': pri,
-            'image_prod': i
+            'image': i
           }
         ]);
       } else {
@@ -148,10 +148,10 @@ subcat(String id_categoria) async {
           {
             'idProduct': idPr,
             'id_category_default': id_parent,
-            'name_prod': namePr,
+            'nameProd': namePr,
             'description': desc,
             'price': pri,
-            'image_prod': null
+            'image': null
           }
         ]);
       }

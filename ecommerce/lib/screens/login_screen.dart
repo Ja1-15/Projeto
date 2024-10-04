@@ -3,101 +3,140 @@ import 'package:ecommerce/screens/home_screen.dart';
 import 'package:ecommerce/screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: SingleChildScrollView(
-        child: SafeArea(
-          child:Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: 110,),
-                Image.asset("images/freed.png"),
-                SizedBox(height: 30,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        decoration: InputDecoration(
-                          labelText: "Enter Email",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.email),
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
-                        ),
+bool _hidden = true;
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: SafeArea(
+            child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 300,
+                child: Image.asset(
+                  "images/logo.png",
+                  fit: BoxFit.fitHeight,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.email),
                       ),
-                      SizedBox(height: 10,),
-                      TextFormField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: "Enter Password",
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      obscureText: _hidden,
+                      decoration: InputDecoration(
+                          labelText: "Senha",
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.lock),
-                          suffixIcon: Icon(Icons.remove_red_eye)
-                        ),
-                      ),
-                      SizedBox(height: 30,),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: TextButton(
-                                onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotScreen()));
-                                }, 
-                              child: Text("Forgot Password?",
-                              style: TextStyle(
-                                color: Color(0xFFEf6969),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600
-                              ),)),
-                      ),
-                      ElevatedButton(
-                        onPressed: (){
-                          Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()));
+                          suffixIcon: IconButton(
+                            icon: Icon(_hidden
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _hidden = !_hidden;
+                              });
+                            },
+                          )),
+                    ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ForgotScreen()));
                           },
-                          child: Text("Log In", 
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18
-                          ),),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size.fromHeight(55),
-                            backgroundColor: Color(0xFFEF6969),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)
-                            )
-                          ),),
-                          SizedBox(height: 10,),
-                          Text("OR"),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("Dont have an account?",
-                              style: TextStyle(
-                                color: Colors.black54,
-                                fontSize: 15
-                              ),),
-                              TextButton(
-                                onPressed: (){
-                                  Navigator.push(context,MaterialPageRoute(builder: (context) => SignupScreen()));
-                                }, 
-                              child: Text("Sign Up",
-                              style: TextStyle(
-                                color: Color(0xFFEf6969),
+                          child: Text(
+                            "Esqueceu a senha?",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 247, 147, 26),
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600
-                              ),))
-                            ],
-                          )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )),
+                                fontWeight: FontWeight.w600),
+                          )),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()));
+                      },
+                      child: Text(
+                        "Login",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: Size.fromHeight(55),
+                          backgroundColor: Color.fromARGB(255, 247, 147, 26),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8))),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("OU"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Ainda não tem uma conta?",
+                          style: TextStyle(color: Colors.black54, fontSize: 15),
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SignupScreen()));
+                            },
+                            child: Text(
+                              "Cadastrar",
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 247, 147, 26),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
+                            ))
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        )),
       ),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:ecommerce/routes.dart';
 import 'package:ecommerce/screens/categories_screen.dart';
 import 'package:ecommerce/screens/payment_method_screen.dart';
-import 'package:collection/collection.dart';
 import 'package:ecommerce/screens/products_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CartScreen extends StatefulWidget {
   @override
@@ -18,13 +18,6 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    // Initializing cart items (assuming cart_prod and cart_cat are available)
-    // Remove empty elements if any
-    cartItems = (cart_cat.isNotEmpty ? cart_cat : cart_prod)
-        .where((item) => item != null && item.isNotEmpty)
-        .toList();
-    print("Filtered Cart Items: $cartItems");
-    itemQuantities = List<int>.filled(cartItems.length, 1);
   }
 
   // Increases the quantity of an item
@@ -41,27 +34,28 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // Formats the currency for BRL
-  String formatCurrencyBRL(double value) {
-    return 'R\$ ${value.toStringAsFixed(2)}';
+  String formatCurrencyBRL(double amount) {
+    final format =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
+    return format.format(amount);
   }
 
   // Calculates the total price of the cart
   double calculateTotal() {
     return cartItems.asMap().entries.map((entry) {
       int index = entry.key;
-      if (entry.value['price'] == double) {
-        double price = entry.value['price'];
-        return price * itemQuantities[index];
-      } else {
-        double price = double.parse(entry.value['price']);
-        return price * itemQuantities[index];
-      }
-    }).sum;
+      String rep =
+          (entry.value['price']?.toString() ?? '0').replaceAll("R\$ ", '');
+      double price = double.parse(rep);
+      return price * itemQuantities[index];
+    }).fold(0.0, (previousValue, element) => previousValue + element);
   }
 
   @override
   Widget build(BuildContext context) {
+    var info = ModalRoute.of(context)!.settings.arguments
+        as List<Map<String, dynamic>>;
+    itemQuantities = List<int>.filled(cartItems.length, 1);
     if (cartItems.isNotEmpty == true) {
       return Scaffold(
         appBar: AppBar(
@@ -87,12 +81,16 @@ class _CartScreenState extends State<CartScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
-                    var item = cartItems[index];
+                    var item = info[index];
                     var quantity = itemQuantities[index];
-                    var productName = item['nameProd'];
-                    var productPrice = double.parse(item['price']);
-                    var productImage = item['image'];
-                    var productDescription = item['description'];
+                    // Adding null safety for cart item properties
+                    var productName =
+                        item['nameProd'] ?? 'Produto desconhecido';
+                    var productPrice = item['price'];
+                    var productImage = item['image'] ??
+                        'https://via.placeholder.com/150'; // Default placeholder image
+                    var productDescription =
+                        item['description'] ?? 'Descrição indisponível';
 
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 15),
@@ -106,7 +104,7 @@ class _CartScreenState extends State<CartScreen> {
                             activeColor: Color(0xFFEF6969),
                             onChanged: null,
                           ),
-                          // Product Image
+                          // Product Image with null safety
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(
@@ -143,9 +141,9 @@ class _CartScreenState extends State<CartScreen> {
                                       color: Colors.black26, fontSize: 16),
                                 ),
                                 const SizedBox(height: 10),
-                                // Product price
+                                // Product price with null safety
                                 Text(
-                                  formatCurrencyBRL(productPrice * quantity),
+                                  formatCurrencyBRL((productPrice) * quantity),
                                   style: const TextStyle(
                                     color: Color(0xFFEF6969),
                                     fontSize: 18,
@@ -247,6 +245,20 @@ class _CartScreenState extends State<CartScreen> {
       );
     } else {
       return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Text("Voltar")),
+        ),
         backgroundColor: Colors.white,
         body: Align(
           alignment: Alignment.center,

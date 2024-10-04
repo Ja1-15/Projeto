@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/routes.dart';
+import 'package:ecommerce/screens/categories_screen.dart';
+import 'package:ecommerce/screens/products_screen.dart';
 import 'package:ecommerce/widgets/list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,6 @@ import 'package:xml/xml.dart' as xml;
 String url_base = "https://b2b.redemachado.com.br";
 String auth = "NllIUFNURUU4SkRTM0VIQ1NYU0c3QlE1QTU1QUxKSkE6";
 var banner_link = [];
-Map<String, String?> cart = {};
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen>
   List lista_bloco = [];
   var imagem;
   List categorias = [];
+  int cartItemCount = 0;
 
   @override
   void initState() {
@@ -69,9 +71,9 @@ class _HomeScreenState extends State<HomeScreen>
         final image = prod.findAllElements('image_link').first.text;
         temporaryList.add({
           'block': title,
-          'name_prod': nameProd,
+          'nameProd': nameProd,
           'price': price,
-          'image_prod': image
+          'image': image
         });
       }
     }
@@ -108,69 +110,66 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        surfaceTintColor: Colors.white,
+        title: Text(
+          "Nome do Perfil",
+          style: TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          surfaceTintColor: Colors.white,
-          title: Text(
-            "Endereço",
-            style: TextStyle(color: Colors.black),
-          ),
-          backgroundColor: Colors.white,
-          leading: IconButton(
-              onPressed: () {}, icon: Icon(CupertinoIcons.person_fill)),
-          automaticallyImplyLeading: false,
-        ),
-        body: FutureBuilder<List>(
-            future: _future,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (snapshot.hasData) {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        buildSearchBar(),
-                        SizedBox(height: 20),
-                        buildImage(),
-                        SizedBox(height: 20),
-                        buildTabs(),
-                        ...buildProductBlocks(),
-                        SizedBox(height: 30),
-                        buildImage(),
-                      ],
-                    ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.LOGIN);
+            },
+            icon: Icon(CupertinoIcons.person_fill)),
+        automaticallyImplyLeading: false,
+      ),
+      body: FutureBuilder<List>(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      buildImage(),
+                      SizedBox(height: 20),
+                      buildTabs(),
+                      ...buildProductBlocks(),
+                      SizedBox(height: 30),
+                      buildImage(),
+                    ],
                   ),
-                );
-              } else {
-                return Center(child: Text("No data available"));
-              }
-            }));
-  }
-
-  Widget buildSearchBar() {
-    return Container(
-      padding: EdgeInsets.all(5),
-      height: 50,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black12.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(10),
+                ),
+              );
+            } else {
+              return Center(child: Text("No data available"));
+            }
+          }),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          var filteredCart = cart_cat.where((item) {
+            // Example filter conditions
+            return item['nameProd'] != null &&
+                item['nameProd'].isNotEmpty &&
+                item['price'] != null &&
+                item['price'].isNotEmpty;
+          }).toList();
+          print(filteredCart);
+          // Navigate with the filtered cart items
+          Navigator.pushNamed(context, AppRoutes.CART, arguments: filteredCart);
+        },
+        backgroundColor: Colors.white,
+        child: Icon(Icons.shopping_cart),
       ),
-      child: TextFormField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.search,
-            color: Color(0xFFEF6969),
-          ),
-          border: InputBorder.none,
-          labelText: "Find your product",
-        ),
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

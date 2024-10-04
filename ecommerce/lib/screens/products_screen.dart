@@ -1,8 +1,7 @@
 import 'package:ecommerce/routes.dart';
+import 'package:ecommerce/screens/categories_screen.dart';
 import 'package:ecommerce/widgets/container_button_model.dart';
 import 'package:flutter/material.dart';
-
-List<Map<String, dynamic>> cart_prod = [{}];
 
 class ProductScreen extends StatefulWidget {
   @override
@@ -46,8 +45,8 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildProductDetails() {
-    final String imageUrl = info['image_prod'].toString();
-    final String productName = info['name_prod'].toString();
+    final String imageUrl = info['image'].toString();
+    final String productName = info['nameProd'].toString();
     final String price = info['price'].toString();
     final String description = info['description'].toString();
     return SingleChildScrollView(
@@ -209,7 +208,7 @@ class _ProductScreenState extends State<ProductScreen> {
       InkWell(
         onTap: () {
           info.addAll({'quantidade': counter.toString()});
-          cart_prod.add(info);
+          cart_cat.add(info);
         },
         child: ContainerButtonModel(
           itext: 'Comprar',
