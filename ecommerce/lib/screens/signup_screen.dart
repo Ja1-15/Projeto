@@ -12,6 +12,38 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _hidden = true;
 
+  final List<String> estados = [
+    'Acre (AC)',
+    'Alagoas (AL)',
+    'Amapá (AP)',
+    'Amazonas (AM)',
+    'Bahia (BA)',
+    'Ceará (CE)',
+    'Distrito Federal (DF)',
+    'Espírito Santo (ES)',
+    'Goiás (GO)',
+    'Maranhão (MA)',
+    'Mato Grosso (MT)',
+    'Mato Grosso do Sul (MS)',
+    'Minas Gerais (MG)',
+    'Pará (PA)',
+    'Paraíba (PB)',
+    'Paraná (PR)',
+    'Pernambuco (PE)',
+    'Piauí (PI)',
+    'Rio de Janeiro (RJ)',
+    'Rio Grande do Norte (RN)',
+    'Rio Grande do Sul (RS)',
+    'Rondônia (RO)',
+    'Roraima (RR)',
+    'Santa Catarina (SC)',
+    'São Paulo (SP)',
+    'Sergipe (SE)',
+    'Tocantins (TO)'
+  ];
+
+  String? _selectedState;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,9 +62,40 @@ class _SignupScreenState extends State<SignupScreen> {
                     TextFormField(
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Nome",
+                        labelText: "Razão Social",
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: "Nome do Contato",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Opcional",
+                        labelText: "Empresa",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Opcional",
+                        labelText: "Número de Identificação",
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     SizedBox(
@@ -42,17 +105,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       decoration: InputDecoration(
                         labelText: "Email",
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Telefone",
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.numbers),
                       ),
                     ),
                     SizedBox(
@@ -63,7 +115,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       decoration: InputDecoration(
                           labelText: "Senha",
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
                           suffixIcon: IconButton(
                             icon: Icon(_hidden
                                 ? Icons.visibility
@@ -79,24 +130,108 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
-                      obscureText: true,
                       decoration: InputDecoration(
-                          labelText: "Confirmar Senha",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(_hidden
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                            onPressed: () {
-                              setState(() {
-                                _hidden = !_hidden;
-                              });
-                            },
-                          )),
+                        labelText: "CNPJ",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(
-                      height: 30,
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "IE",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "CEP",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Endereço",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Opcional",
+                        labelText: "Numero",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Bairro",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Opcional",
+                        labelText: "Complemento",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Cidade",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: "Estado",
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _selectedState,
+                      items: estados.map((String state) {
+                        return DropdownMenuItem<String>(
+                          value: state,
+                          child: Text(state),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedState = newValue;
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Telefone",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
                     ),
                     ElevatedButton(
                       onPressed: () {

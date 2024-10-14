@@ -1,34 +1,83 @@
 import 'package:flutter/material.dart';
 
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
+
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  // Sample data list for search results
+  final List<String> _allItems = [
+    'Laptop',
+    'Smartphone',
+    'Tablet',
+    'Smartwatch',
+    'Headphones',
+    'Keyboard',
+    'Mouse',
+    'Monitor',
+    'Printer',
+    'Camera',
+  ];
+
+  List<String> _filteredItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = _allItems;
+  }
+
+  void _filterSearchResults(String query) {
+    List<String> results = [];
+    if (query.isEmpty) {
+      results = _allItems;
+    } else {
+      results = _allItems
+          .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    setState(() {
+      _filteredItems = results;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Search Screen"),
-    );
-  }
-
-  Widget buildSearchBar() {
-    return Container(
-      padding: EdgeInsets.all(5),
-      height: 50,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black12.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextFormField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.search,
-            color: Color(0xFFEF6969),
+      appBar: AppBar(
+        title: TextField(
+          onChanged: _filterSearchResults,
+          decoration: InputDecoration(
+            hintText: 'Search...',
+            border: InputBorder.none,
+            suffixIcon: Icon(Icons.search),
           ),
-          border: InputBorder.none,
-          labelText: "Find your product",
         ),
       ),
+      body: _filteredItems.isNotEmpty
+          ? ListView.builder(
+              itemCount: _filteredItems.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_filteredItems[index]),
+                  onTap: () {
+                    // Handle the onTap if necessary (e.g., navigate to product details)
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('${_filteredItems[index]} selected'),
+                    ));
+                  },
+                );
+              },
+            )
+          : Center(
+              child: Text(
+                'No results found',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            ),
     );
   }
 }

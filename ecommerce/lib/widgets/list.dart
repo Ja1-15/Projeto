@@ -19,22 +19,16 @@ class _Lista_produtosState extends State<Lista_produtos>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  bool isAdded = false;
+  bool isAddedToCart = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _controller.reverse(); // Return to normal after scaling up
-        }
-      });
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
   @override
@@ -43,11 +37,25 @@ class _Lista_produtosState extends State<Lista_produtos>
     super.dispose();
   }
 
-  void _onAddtoCart() {
+  _onAddToCart() {
     setState(() {
-      isAdded = !isAdded;
+      isAddedToCart = true;
     });
-    _controller.forward();
+
+    // Start the animation when the button is pressed
+    _controller.forward().then((_) {
+      _controller.reverse();
+    });
+
+    // Add the product to the cart (you can call your logic here)
+    // For example: addItemToCart(widget.info);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${widget.info['nameProd']} adicionado ao carrinho!'),
+        ),
+      );
+    });
   }
 
   @override
@@ -58,6 +66,7 @@ class _Lista_produtosState extends State<Lista_produtos>
   Widget buildProductCard(Map<String, dynamic> info) {
     var rep = info['price'].toString().replaceAll("R\$ ", '');
     var amount = formatCurrencyBRL(double.parse(rep));
+
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.PRODUCTS, arguments: info);
@@ -73,7 +82,7 @@ class _Lista_produtosState extends State<Lista_produtos>
               // Product image
               Container(
                 height: 100,
-                width: 170,
+                width: 180,
                 child: info['image'] != null
                     ? Image.network(
                         info['image']!,
@@ -105,6 +114,7 @@ class _Lista_produtosState extends State<Lista_produtos>
                   ),
                 ),
               ),
+
               // Product name
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -115,24 +125,36 @@ class _Lista_produtosState extends State<Lista_produtos>
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
                 ),
               ),
-              const SizedBox(height: 5),
+
               const Spacer(),
+
               // Add to cart button
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      cart_cat.addAll({info});
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.green),
-                    ),
-                    child: Text(
-                      'Adicionar',
-                      style: TextStyle(
-                        color: Colors.black,
+                  width: double.infinity, // Full width of the container
+                  child: ScaleTransition(
+                    scale: _animation.drive(Tween(begin: 0.8, end: 1.0)),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _onAddToCart();
+                        cart_cat.addAll({info});
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            vertical:
+                                15), // Increased vertical padding for a taller button
+                        backgroundColor:
+                            isAddedToCart ? Colors.green : Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        isAddedToCart ? "Adicionado" : "Adicionar",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black), // Increased font size
                       ),
                     ),
                   ),

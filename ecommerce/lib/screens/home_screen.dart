@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecommerce/routes.dart';
-import 'package:ecommerce/screens/categories_screen.dart';
-import 'package:ecommerce/screens/products_screen.dart';
+import 'package:ecommerce/widgets/cart_button.dart';
 import 'package:ecommerce/widgets/list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +72,8 @@ class _HomeScreenState extends State<HomeScreen>
           'block': title,
           'nameProd': nameProd,
           'price': price,
-          'image': image
+          'image': image,
+          'quantity': "1"
         });
       }
     }
@@ -153,22 +153,7 @@ class _HomeScreenState extends State<HomeScreen>
               return Center(child: Text("No data available"));
             }
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          var filteredCart = cart_cat.where((item) {
-            // Example filter conditions
-            return item['nameProd'] != null &&
-                item['nameProd'].isNotEmpty &&
-                item['price'] != null &&
-                item['price'].isNotEmpty;
-          }).toList();
-          print(filteredCart);
-          // Navigate with the filtered cart items
-          Navigator.pushNamed(context, AppRoutes.CART, arguments: filteredCart);
-        },
-        backgroundColor: Colors.white,
-        child: Icon(Icons.shopping_cart),
-      ),
+      floatingActionButton: CartButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }

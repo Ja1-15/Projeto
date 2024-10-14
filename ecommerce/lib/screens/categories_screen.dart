@@ -4,7 +4,6 @@ import 'package:ecommerce/widgets/list.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
-import 'package:intl/intl.dart';
 
 String auth = "NllIUFNURUU4SkRTM0VIQ1NYU0c3QlE1QTU1QUxKSkE6";
 List lista_nome = [];
@@ -27,7 +26,7 @@ class CategoryDropDown extends StatelessWidget {
           automaticallyImplyLeading: false,
           leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, AppRoutes.HOME);
               },
               icon: Icon(Icons.arrow_back)),
           elevation: 0,
@@ -140,7 +139,8 @@ subcat(String id_categoria) async {
             'nameProd': namePr,
             'description': desc,
             'price': pri,
-            'image': i
+            'image': i,
+            'quantity': "1"
           }
         ]);
       } else {
@@ -151,7 +151,8 @@ subcat(String id_categoria) async {
             'nameProd': namePr,
             'description': desc,
             'price': pri,
-            'image': null
+            'image': null,
+            'quantity': "1"
           }
         ]);
       }
