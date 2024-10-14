@@ -18,6 +18,7 @@ class _NavigationscreenState extends State<Navigationscreen> {
   @override
   Widget build(BuildContext context) {
     var filtered =
+        // ignore: unnecessary_null_comparison
         (cart_cat).where((item) => item != null && item.isNotEmpty).toList();
     cartItemCount = filtered.length;
     return Scaffold(

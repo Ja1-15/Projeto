@@ -52,7 +52,17 @@ class _Lista_produtosState extends State<Lista_produtos>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${widget.info['nameProd']} adicionado ao carrinho!'),
+          content: Row(
+            children: [
+              Text('${widget.info['nameProd']} adicionado ao carrinho!'),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.CART);
+                },
+                child: Text("Ver carrinho"),
+              ),
+            ],
+          ),
         ),
       );
     });
