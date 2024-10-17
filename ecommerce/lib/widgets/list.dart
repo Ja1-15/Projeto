@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:ecommerce/routes.dart';
+import 'package:ecommerce/screens/cart_screen.dart';
 import 'package:ecommerce/screens/categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -37,35 +38,78 @@ class _Lista_produtosState extends State<Lista_produtos>
     super.dispose();
   }
 
-  _onAddToCart() {
+  // Exemplo de lista de produtos no carrinho
+
+  _onAddToCart(Map<String, dynamic> product) {
     setState(() {
+      // Verifica se o produto já está no carrinho
+      var existingProduct = cart_cat.firstWhere(
+        (item) => item['id'] == product['id'],
+        orElse: () => <String, dynamic>{},
+      );
+
+      if (existingProduct.isNotEmpty) {
+        // Se o produto já está no carrinho, aumenta a quantidade
+        existingProduct['quantity'] += 1;
+      } else {
+        // Se o produto não está no carrinho, adiciona-o com quantidade inicial de 1
+        var newProduct = Map<String, dynamic>.from(product);
+        newProduct['quantity'] = 1; // Define quantidade inicial
+        cart_cat.add(newProduct);
+      }
+
       isAddedToCart = true;
     });
 
-    // Start the animation when the button is pressed
-    _controller.forward().then((_) {
-      _controller.reverse();
-    });
-
-    // Add the product to the cart (you can call your logic here)
-    // For example: addItemToCart(widget.info);
+    // Exibe o SnackBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: Column(
             children: [
-              Text('${widget.info['nameProd']} adicionado ao carrinho!'),
+              Text('${product['nameProd']} adicionado ao carrinho!'),
               TextButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.CART);
+                  Navigator.pushNamed(context, AppRoutes.CART,
+                      arguments: cart_cat);
                 },
-                child: Text("Ver carrinho"),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    "Ver carrinho",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
             ],
           ),
         ),
       );
     });
+
+    // Iniciar animação
+    _controller.forward().then((_) {
+      _controller.reverse();
+    });
+  }
+
+  void _navigateToCartScreen() async {
+    var updatedCartItems = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartScreen(),
+        settings:
+            RouteSettings(arguments: cart_cat), // Passa os itens do carrinho
+      ),
+    );
+
+    // Verifica se a lista foi atualizada e atualiza o estado da tela inicial
+    if (updatedCartItems != null) {
+      setState(() {
+        cart_cat =
+            updatedCartItems; // Atualiza a lista de produtos com os itens do carrinho
+      });
+    }
   }
 
   @override
@@ -89,7 +133,7 @@ class _Lista_produtosState extends State<Lista_produtos>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product image
+              // Imagem do produto
               Container(
                 height: 100,
                 width: 180,
@@ -112,7 +156,7 @@ class _Lista_produtosState extends State<Lista_produtos>
               ),
               const SizedBox(height: 10),
 
-              // Product price
+              // Preço do produto
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -125,7 +169,7 @@ class _Lista_produtosState extends State<Lista_produtos>
                 ),
               ),
 
-              // Product name
+              // Nome do produto
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -138,7 +182,7 @@ class _Lista_produtosState extends State<Lista_produtos>
 
               const Spacer(),
 
-              // Add to cart button
+              // Botão de adicionar ao carrinho
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SizedBox(
@@ -147,13 +191,10 @@ class _Lista_produtosState extends State<Lista_produtos>
                     scale: _animation.drive(Tween(begin: 0.8, end: 1.0)),
                     child: ElevatedButton(
                       onPressed: () {
-                        _onAddToCart();
-                        cart_cat.addAll({info});
+                        _onAddToCart(info);
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                            vertical:
-                                15), // Increased vertical padding for a taller button
+                        padding: EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             isAddedToCart ? Colors.green : Colors.green,
                         shape: RoundedRectangleBorder(
@@ -177,10 +218,10 @@ class _Lista_produtosState extends State<Lista_produtos>
       ),
     );
   }
-}
 
-String formatCurrencyBRL(double amount) {
-  final format =
-      NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
-  return format.format(amount);
+  String formatCurrencyBRL(double amount) {
+    final format =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
+    return format.format(amount);
+  }
 }

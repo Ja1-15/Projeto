@@ -68,7 +68,9 @@ class _HomeScreenState extends State<HomeScreen>
         final nameProd = prod.findElements('name').first.text;
         final price = prod.findAllElements('price').first.text;
         final image = prod.findAllElements('image_link').first.text;
+        final id = prod.findAllElements('id_product_attribute').first.text;
         temporaryList.add({
+          'id': id,
           'block': title,
           'nameProd': nameProd,
           'price': price,

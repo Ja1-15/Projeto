@@ -1,3 +1,4 @@
+import 'package:ecommerce/routes.dart';
 import 'package:ecommerce/screens/payment_method_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +11,6 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   // Data Lists for storing cart info
   List<Map<String, dynamic>> cartItems = [];
-  List<int> itemQuantities = [];
 
   @override
   void initState() {
@@ -21,21 +21,31 @@ class _CartScreenState extends State<CartScreen> {
       final info = ModalRoute.of(context)!.settings.arguments
           as List<Map<String, dynamic>>;
       setState(() {
-        cartItems = info;
-        itemQuantities = List<int>.filled(cartItems.length, 1);
+        cartItems = info.where((item) => item.isNotEmpty).toList();
+        for (var item in cartItems) {
+          item['quantity'] ??= 1;
+        }
       });
     });
   }
 
   void incrementCounter(int index) {
     setState(() {
-      itemQuantities[index]++;
+      cartItems[index]['quantity']++;
     });
   }
 
   void decrementCounter(int index) {
     setState(() {
-      if (itemQuantities[index] > 1) itemQuantities[index]--;
+      if (cartItems[index]['quantity'] > 1) {
+        cartItems[index]['quantity']--;
+      }
+    });
+  }
+
+  void removeItem(int index) {
+    setState(() {
+      cartItems.removeAt(index);
     });
   }
 
@@ -46,24 +56,23 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   double calculateTotal() {
-    return cartItems.asMap().entries.map((entry) {
-      int index = entry.key;
-      String rep =
-          (entry.value['price']?.toString() ?? '0').replaceAll("R\$ ", '');
+    return cartItems.map((item) {
+      String rep = (item['price']?.toString() ?? '0').replaceAll("R\$ ", '');
       double price = double.parse(rep);
-      return price * itemQuantities[index];
+      return price * (item['quantity'] ?? 1);
     }).fold(0.0, (previousValue, element) => previousValue + element);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("Seu Carrinho"),
         automaticallyImplyLeading: false,
         leading: BackButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, cartItems);
           },
         ),
         backgroundColor: Colors.transparent,
@@ -72,9 +81,34 @@ class _CartScreenState extends State<CartScreen> {
         centerTitle: true,
       ),
       body: cartItems.isEmpty
-          ? const Center(
-              child:
-                  CircularProgressIndicator()) // Show loader until items are populated
+          ? Center(
+              child: Column(
+              children: [
+                SizedBox(
+                  height: 100,
+                ),
+                Image.asset('images/carrinho_vazio.png'),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Seu carrinho está vazio",
+                  style: TextStyle(fontWeight: FontWeight.w400, fontSize: 22),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context, cartItems);
+                    },
+                    child: Text(
+                      'Voltar',
+                      style:
+                          TextStyle(color: Color.fromARGB(255, 241, 151, 55)),
+                    ))
+              ],
+            )) // Show loader until items are populated
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(15),
@@ -87,7 +121,7 @@ class _CartScreenState extends State<CartScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         var item = cartItems[index];
-                        var quantity = itemQuantities[index];
+                        var quantity = item['quantity'];
                         var productName =
                             item['nameProd'] ?? 'Produto desconhecido';
                         var productPrice =
@@ -102,12 +136,6 @@ class _CartScreenState extends State<CartScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Checkbox(
-                                value: true,
-                                splashRadius: 20,
-                                activeColor: Color(0xFFEF6969),
-                                onChanged: null,
-                              ),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Image.network(
@@ -182,7 +210,14 @@ class _CartScreenState extends State<CartScreen> {
                                               ),
                                             ],
                                           ),
-                                        )
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            removeItem(index);
+                                          },
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
+                                        ),
                                       ],
                                     ),
                                   ],
