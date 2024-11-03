@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ContainerButtonModel extends StatelessWidget {
-
   final Color? bgColor;
   final double? containerWidth;
   final String itext;
 
-  const ContainerButtonModel({super.key, this.bgColor, this.containerWidth, required this.itext});
+  const ContainerButtonModel(
+      {super.key, this.bgColor, this.containerWidth, required this.itext});
 
   @override
   Widget build(BuildContext context) {
@@ -14,17 +14,13 @@ class ContainerButtonModel extends StatelessWidget {
       height: 60,
       width: 190,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: bgColor
-      ),
+          borderRadius: BorderRadius.circular(20), color: bgColor),
       child: Center(
         child: Text(
-        itext,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 18
-        ),),
+          itext,
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
       ),
     );
   }

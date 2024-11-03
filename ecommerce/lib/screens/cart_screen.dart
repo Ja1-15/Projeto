@@ -31,12 +31,22 @@ class _CartScreenState extends State<CartScreen> {
 
   void incrementCounter(int index) {
     setState(() {
+      // Check if the quantity is a String
+      if (cartItems[index]['quantity'] is String) {
+        // Parse it to an integer if it's a String
+        cartItems[index]['quantity'] = int.parse(cartItems[index]['quantity']);
+      }
+      // Increment the quantity
       cartItems[index]['quantity']++;
     });
   }
 
   void decrementCounter(int index) {
     setState(() {
+      // Ensure the quantity is an integer before decrementing
+      if (cartItems[index]['quantity'] is String) {
+        cartItems[index]['quantity'] = int.parse(cartItems[index]['quantity']);
+      }
       if (cartItems[index]['quantity'] > 1) {
         cartItems[index]['quantity']--;
       }
@@ -59,7 +69,10 @@ class _CartScreenState extends State<CartScreen> {
     return cartItems.map((item) {
       String rep = (item['price']?.toString() ?? '0').replaceAll("R\$ ", '');
       double price = double.parse(rep);
-      return price * (item['quantity'] ?? 1);
+      var quantity = item['quantity'] is String
+          ? int.parse(item['quantity'])
+          : item['quantity'];
+      return price * (quantity ?? 1);
     }).fold(0.0, (previousValue, element) => previousValue + element);
   }
 
@@ -121,7 +134,9 @@ class _CartScreenState extends State<CartScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         var item = cartItems[index];
-                        var quantity = item['quantity'];
+                        var quantity = item['quantity'] is String
+                            ? int.parse(item['quantity'])
+                            : item['quantity'];
                         var productName =
                             item['nameProd'] ?? 'Produto desconhecido';
                         var productPrice =

@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -6,6 +10,9 @@ class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
+
+String auth = "NllIUFNURUU4SkRTM0VIQ1NYU0c3QlE1QTU1QUxKSkE6";
+List list_name = [];
 
 class _SearchScreenState extends State<SearchScreen> {
   // Sample data list for search results

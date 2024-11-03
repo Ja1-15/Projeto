@@ -1,6 +1,18 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:ecommerce/screens/home_screen.dart';
 import 'package:ecommerce/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+
+bool _hidden = true;
+String auth = "NllIUFNURUU4SkRTM0VIQ1NYU0c3QlE1QTU1QUxKSkE6";
+late final KeyboardVisibilityController _keyboardVisibilityController;
+late StreamSubscription<bool> keyboardSubscription;
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -9,8 +21,47 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
+var password = '';
+var cpf = '';
+var cnpj = '';
+var email = '';
+var nome_resp = '';
+var nome_empresa = '';
+var rg = '';
+var ie = '';
+
 class _SignupScreenState extends State<SignupScreen> {
-  bool _hidden = true;
+  final controller_cnpj = TextEditingController();
+  final controller_ie = TextEditingController();
+  final controller_name = TextEditingController();
+  final controller_password = TextEditingController();
+  final controller_email = TextEditingController();
+  final controller_empresa = TextEditingController();
+  final controller_cep = TextEditingController();
+  final controller_numero = TextEditingController();
+  final controller_complemento = TextEditingController();
+  final controller_cidade = TextEditingController();
+  final controller_telefone = TextEditingController();
+  final controller_bairro = TextEditingController();
+  var controller_rua = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _keyboardVisibilityController = KeyboardVisibilityController();
+    keyboardSubscription =
+        _keyboardVisibilityController.onChange.listen((isVisible) {
+      if (!isVisible) {
+        getAdress(controller_cep.text);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    keyboardSubscription.cancel();
+    super.dispose();
+  }
 
   final List<String> estados = [
     'Acre (AC)',
@@ -41,8 +92,73 @@ class _SignupScreenState extends State<SignupScreen> {
     'Sergipe (SE)',
     'Tocantins (TO)'
   ];
-
   String? _selectedState;
+
+  var xml_customer = [
+    '''<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+<customer>
+<id_default_group>3</id_default_group>
+<id_lang>2</id_lang>
+<deleted>0</deleted>
+<passwd>$password</passwd>
+<cpf>$cpf</cpf>
+<cnpj>$cnpj</cnpj>
+<rg>$rg</rg>
+<ie>$ie</ie>
+<lastname>$nome_resp</lastname>
+<firstname>$nome_empresa</firstname>
+<email>$email</email>
+<newsletter>0</newsletter>
+<optin>0</optin>
+<website></website>
+<company></company>
+<siret>$cnpj</siret>
+<ape></ape>
+<outstanding_allow_amount>0</outstanding_allow_amount>
+<show_public_prices>0</show_public_prices>
+<id_risk>0</id_risk>
+<max_payment_days>0</max_payment_days>
+<active>1</active>
+<note>registrado via aplicativo</note>
+<is_guest>0</is_guest>
+<id_shop>1</id_shop>
+<id_shop_group>1</id_shop_group>
+<id_default_payment>0</id_default_payment>
+<date_add></date_add>
+<date_upd></date_upd>
+<reset_password_token></reset_password_token>
+<reset_password_validity></reset_password_validity>
+<associations>
+<groups>
+<group>
+<id>3</id>
+</group>
+</groups>
+</associations>
+</customer>
+</prestashop>'''
+  ];
+
+  var maskFormattertelefone = new MaskTextInputFormatter(
+      mask: '(##) # ####-####',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.eager);
+
+  var maskFormatterCnpj = new MaskTextInputFormatter(
+      mask: '##.###.###/####-##',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.eager);
+
+  var maskFormatterIE = new MaskTextInputFormatter(
+      mask: '###.###.###.###',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.eager);
+
+  var maskFormatterCEP = new MaskTextInputFormatter(
+      mask: '#####-###',
+      filter: {"#": RegExp(r'[0-9]')},
+      type: MaskAutoCompletionType.eager);
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +176,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   children: [
                     TextFormField(
-                      obscureText: true,
+                      controller: controller_empresa,
                       decoration: InputDecoration(
                         labelText: "Razão Social",
                         border: OutlineInputBorder(),
@@ -70,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
-                      obscureText: true,
+                      controller: controller_name,
                       decoration: InputDecoration(
                         labelText: "Nome do Contato",
                         border: OutlineInputBorder(),
@@ -80,28 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Opcional",
-                        labelText: "Empresa",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Opcional",
-                        labelText: "Número de Identificação",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
+                      controller: controller_email,
                       decoration: InputDecoration(
                         labelText: "Email",
                         border: OutlineInputBorder(),
@@ -111,7 +206,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
-                      obscureText: true,
+                      controller: controller_password,
+                      obscureText: _hidden,
                       decoration: InputDecoration(
                           labelText: "Senha",
                           border: OutlineInputBorder(),
@@ -130,6 +226,28 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      obscureText: _hidden,
+                      decoration: InputDecoration(
+                          labelText: "Confirmar Senha",
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(_hidden
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _hidden = !_hidden;
+                              });
+                            },
+                          )),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextFormField(
+                      controller: controller_cnpj,
+                      inputFormatters: [maskFormatterCnpj],
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: "CNPJ",
                         border: OutlineInputBorder(),
@@ -139,6 +257,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_ie,
+                      inputFormatters: [maskFormatterIE],
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: "IE",
                         border: OutlineInputBorder(),
@@ -148,17 +269,27 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_cep,
+                      inputFormatters: [maskFormatterCEP],
                       decoration: InputDecoration(
                         labelText: "CEP",
                         border: OutlineInputBorder(),
                       ),
+                      onEditingComplete: () {
+                        getAdress(controller_cep.text);
+                      },
+                      onTapOutside: (event) {
+                        getAdress(controller_cep.text);
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                     ),
                     SizedBox(
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_rua,
                       decoration: InputDecoration(
-                        labelText: "Endereço",
+                        labelText: "Rua",
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -166,6 +297,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_numero,
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: "Opcional",
                         labelText: "Numero",
@@ -176,6 +309,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_bairro,
                       decoration: InputDecoration(
                         labelText: "Bairro",
                         border: OutlineInputBorder(),
@@ -185,6 +319,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_complemento,
                       decoration: InputDecoration(
                         hintText: "Opcional",
                         labelText: "Complemento",
@@ -195,6 +330,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_cidade,
                       decoration: InputDecoration(
                         labelText: "Cidade",
                         border: OutlineInputBorder(),
@@ -225,6 +361,9 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     TextFormField(
+                      controller: controller_telefone,
+                      inputFormatters: [maskFormattertelefone],
+                      keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: "Telefone",
                         border: OutlineInputBorder(),
@@ -234,7 +373,33 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 10,
                     ),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        var url_customer = Uri.parse(
+                            "https://b2b.redemachado.com.br/api/customers/");
+                        var url_address = Uri.parse(
+                            "https://b2b.redemachado.com.br/api/addresses/");
+                        var response = await http.post(url_customer, headers: {
+                          HttpHeaders.authorizationHeader: "Basic $auth"
+                        }, body: {
+                          "cnpj": maskFormatterCnpj.getMaskedText().toString(),
+                          "passwd": controller_password.text.toString(),
+                          "ie": controller_ie.text.toString(),
+                          "email": controller_email.text.toString(),
+                          "company": controller_empresa.text.toString()
+                        });
+                        print(response.statusCode);
+                        var response2 = await http.post(url_address, headers: {
+                          HttpHeaders.authorizationHeader: "Basic $auth"
+                        }, body: {
+                          "postcode": controller_cep.toString(),
+                          "vat_number": controller_numero.toString(),
+                          "other": controller_complemento.toString(),
+                          "city": controller_cidade.toString(),
+                          "phone": controller_telefone.toString(),
+                          "address_1": controller_rua.toString(),
+                          "address_2": controller_bairro.toString(),
+                        });
+                        print(response2.statusCode);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -285,5 +450,22 @@ class _SignupScreenState extends State<SignupScreen> {
         )),
       ),
     );
+  }
+
+  void getAdress(String cep_busca) async {
+    var endereco_cep = Uri.parse("http://viacep.com.br/ws/$cep_busca/xml/");
+    var response = await http.get(endereco_cep,
+        headers: {HttpHeaders.authorizationHeader: "Basic $auth"});
+    final document = xml.XmlDocument.parse(response.body);
+    final xmlcep = document.findElements('xmlcep').first;
+    final logradouro = xmlcep.findElements("logradouro").first.text;
+    final bairro = xmlcep.findElements('bairro').first.text;
+    final localidade = xmlcep.findElements('localidade').first.text;
+
+    setState(() {
+      controller_rua.text = logradouro;
+      controller_bairro.text = bairro;
+      controller_cidade.text = localidade;
+    });
   }
 }

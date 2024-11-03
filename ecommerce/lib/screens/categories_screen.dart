@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:ecommerce/routes.dart';
+import 'package:ecommerce/widgets/cart_button.dart';
 import 'package:ecommerce/widgets/list.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,53 +22,59 @@ class CategoryDropDown extends StatelessWidget {
     var id_parent = ModalRoute.of(context)!.settings.arguments;
     var _future = subcat(id_parent.toString());
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Produtos'),
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.HOME);
-              },
-              icon: Icon(Icons.arrow_back)),
-          elevation: 0,
-        ),
-        body: FutureBuilder(
-            future: _future,
-            builder: (context, snapshot) {
-              if (snapshot.hasData == true) {
-                return ListView.builder(
-                    itemCount: lista_nome.length,
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                lista_nome[index]['name'],
-                                style: TextStyle(
-                                    fontSize: 25, fontWeight: FontWeight.bold),
-                              )),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                              height: 250,
-                              child: build_list(lista_nome[index]['id_cat'])),
-                        ],
-                      );
-                    });
-              } else {
-                return Align(
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator(),
-                );
-              }
-            }));
+      backgroundColor: Color.fromARGB(255, 248, 247, 247),
+      appBar: AppBar(
+        title: const Text('Produtos'),
+        backgroundColor: Color.fromARGB(255, 248, 247, 247),
+        surfaceTintColor: Color.fromARGB(255, 248, 247, 247),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.HOME);
+            },
+            icon: Icon(Icons.arrow_back)),
+        elevation: 0,
+      ),
+      body: FutureBuilder(
+          future: _future,
+          builder: (context, snapshot) {
+            if (snapshot.hasData == true) {
+              return ListView.builder(
+                  itemCount: lista_nome.length,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              lista_nome[index]['name'],
+                              style: TextStyle(
+                                  fontSize: 25, fontWeight: FontWeight.bold),
+                            )),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                            height: 250,
+                            child: build_list(lista_nome[index]['id_cat'])),
+                      ],
+                    );
+                  });
+            } else {
+              return Align(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
+              );
+            }
+          }),
+      floatingActionButton: CartButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
   }
 }
 

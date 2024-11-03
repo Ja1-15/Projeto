@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:ecommerce/routes.dart';
-import 'package:ecommerce/screens/cart_screen.dart';
 import 'package:ecommerce/screens/categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +20,7 @@ class _Lista_produtosState extends State<Lista_produtos>
   late AnimationController _controller;
   late Animation<double> _animation;
   bool isAddedToCart = false;
+  int quantity = 1;
 
   @override
   void initState() {
@@ -38,78 +38,144 @@ class _Lista_produtosState extends State<Lista_produtos>
     super.dispose();
   }
 
-  // Exemplo de lista de produtos no carrinho
+  void _showAddToCartModal(
+      BuildContext context, Map<String, dynamic> product) async {
+    int quantity = 1; // Set a default quantity
 
-  _onAddToCart(Map<String, dynamic> product) {
+    final result = await showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, modalSetState) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 100,
+                    width: 180,
+                    child: product['image'] != null
+                        ? Image.network(
+                            product['image']!,
+                            fit: BoxFit.fitHeight,
+                            headers: {
+                              HttpHeaders.authorizationHeader: 'Basic $auth'
+                            },
+                          )
+                        : Center(child: Text("No Image Available")),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    product['nameProd'] ?? 'No Name',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    '${formatCurrencyBRL(double.parse(product['price'].toString().replaceAll("R\$ ", '')))}',
+                    style: TextStyle(fontSize: 18, color: Colors.green),
+                  ),
+                  SizedBox(height: 20),
+
+                  // Quantity selection
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove_circle_outline),
+                        onPressed: () {
+                          if (quantity > 1) {
+                            modalSetState(() {
+                              quantity--;
+                            });
+                          }
+                        },
+                      ),
+                      Text(
+                        '$quantity',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add_circle_outline),
+                        onPressed: () {
+                          modalSetState(() {
+                            quantity++;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      _onAddToCart(product, quantity);
+                      Navigator.pop(context, true);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        minimumSize: Size(double.infinity, 60)),
+                    child: Text(
+                      '$quantity x ${formatCurrencyBRL(quantity * double.parse(product['price'].toString().replaceAll("R\$ ", '')))}',
+                      style: TextStyle(fontSize: 18, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    // If the result is true, show the SnackBar on the home page
+    if (result == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${product['nameProd']} adicionado ao carrinho!'),
+          action: SnackBarAction(
+            label: 'Ver carrinho',
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.CART, arguments: cart_cat);
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  _onAddToCart(Map<String, dynamic> product, int quantity) {
     setState(() {
-      // Verifica se o produto já está no carrinho
       var existingProduct = cart_cat.firstWhere(
         (item) => item['id'] == product['id'],
         orElse: () => <String, dynamic>{},
       );
 
       if (existingProduct.isNotEmpty) {
-        // Se o produto já está no carrinho, aumenta a quantidade
-        existingProduct['quantity'] += 1;
+        existingProduct['quantity'] += quantity;
       } else {
-        // Se o produto não está no carrinho, adiciona-o com quantidade inicial de 1
         var newProduct = Map<String, dynamic>.from(product);
-        newProduct['quantity'] = 1; // Define quantidade inicial
+        newProduct['quantity'] = quantity;
         cart_cat.add(newProduct);
       }
 
       isAddedToCart = true;
     });
 
-    // Exibe o SnackBar
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            children: [
-              Text('${product['nameProd']} adicionado ao carrinho!'),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.CART,
-                      arguments: cart_cat);
-                },
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "Ver carrinho",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-
-    // Iniciar animação
     _controller.forward().then((_) {
       _controller.reverse();
     });
-  }
-
-  void _navigateToCartScreen() async {
-    var updatedCartItems = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CartScreen(),
-        settings:
-            RouteSettings(arguments: cart_cat), // Passa os itens do carrinho
-      ),
-    );
-
-    // Verifica se a lista foi atualizada e atualiza o estado da tela inicial
-    if (updatedCartItems != null) {
-      setState(() {
-        cart_cat =
-            updatedCartItems; // Atualiza a lista de produtos com os itens do carrinho
-      });
-    }
   }
 
   @override
@@ -127,13 +193,12 @@ class _Lista_produtosState extends State<Lista_produtos>
       },
       child: SizedBox(
         height: 300,
-        width: 170,
+        width: 180,
         child: Card(
           color: Colors.white,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Imagem do produto
               Container(
                 height: 100,
                 width: 180,
@@ -144,19 +209,10 @@ class _Lista_produtosState extends State<Lista_produtos>
                         headers: {
                           HttpHeaders.authorizationHeader: 'Basic $auth'
                         },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(child: CircularProgressIndicator());
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(child: Text("Failed to load image"));
-                        },
                       )
                     : Center(child: Text("No Image Available")),
               ),
               const SizedBox(height: 10),
-
-              // Preço do produto
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -168,8 +224,6 @@ class _Lista_produtosState extends State<Lista_produtos>
                   ),
                 ),
               ),
-
-              // Nome do produto
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -179,33 +233,27 @@ class _Lista_produtosState extends State<Lista_produtos>
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
                 ),
               ),
-
               const Spacer(),
-
-              // Botão de adicionar ao carrinho
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SizedBox(
-                  width: double.infinity, // Full width of the container
+                  width: double.infinity,
                   child: ScaleTransition(
                     scale: _animation.drive(Tween(begin: 0.8, end: 1.0)),
                     child: ElevatedButton(
                       onPressed: () {
-                        _onAddToCart(info);
+                        _showAddToCartModal(context, info);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            isAddedToCart ? Colors.green : Colors.green,
+                        backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
                       child: Text(
-                        isAddedToCart ? "Adicionado" : "Adicionar",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black), // Increased font size
+                        "Adicionar",
+                        style: TextStyle(fontSize: 18, color: Colors.black),
                       ),
                     ),
                   ),
@@ -220,8 +268,11 @@ class _Lista_produtosState extends State<Lista_produtos>
   }
 
   String formatCurrencyBRL(double amount) {
-    final format =
-        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
+    final format = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: 'R\$',
+      decimalDigits: 2,
+    );
     return format.format(amount);
   }
 }

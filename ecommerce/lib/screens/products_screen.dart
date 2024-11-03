@@ -1,6 +1,8 @@
+import 'package:ecommerce/routes.dart';
 import 'package:ecommerce/screens/categories_screen.dart';
 import 'package:ecommerce/widgets/container_button_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ProductScreen extends StatefulWidget {
   @override
@@ -125,7 +127,7 @@ class _ProductScreenState extends State<ProductScreen> {
           width: 5,
         ),
         Text(
-          price,
+          '${formatCurrencyBRL(double.parse(price.toString().replaceAll("R\$", "")))}',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 25,
@@ -206,8 +208,19 @@ class _ProductScreenState extends State<ProductScreen> {
       ),
       InkWell(
         onTap: () {
-          info.addAll({'quantidade': counter.toString()});
-          cart_cat.add(info);
+          _onAddToCart(info, 1);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Color.fromARGB(255, 242, 152, 34),
+              content: Text(
+                '${info['nameProd']} adicionado ao carrinho!',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          );
+          Navigator.pop(context);
         },
         child: ContainerButtonModel(
           itext: 'Comprar',
@@ -215,5 +228,31 @@ class _ProductScreenState extends State<ProductScreen> {
         ),
       ),
     ]);
+  }
+
+  String formatCurrencyBRL(double amount) {
+    final format = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: 'R\$',
+      decimalDigits: 2,
+    );
+    return format.format(amount);
+  }
+
+  _onAddToCart(Map<String, dynamic> product, int quantity) {
+    setState(() {
+      var existingProduct = cart_cat.firstWhere(
+        (item) => item['id'] == product['id'],
+        orElse: () => <String, dynamic>{},
+      );
+
+      if (existingProduct.isNotEmpty) {
+        existingProduct['quantity'] += quantity;
+      } else {
+        var newProduct = Map<String, dynamic>.from(product);
+        newProduct['quantity'] = quantity;
+        cart_cat.add(newProduct);
+      }
+    });
   }
 }
