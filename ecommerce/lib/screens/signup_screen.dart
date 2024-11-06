@@ -27,7 +27,6 @@ var cnpj = '';
 var email = '';
 var nome_resp = '';
 var nome_empresa = '';
-var rg = '';
 var ie = '';
 
 class _SignupScreenState extends State<SignupScreen> {
@@ -96,49 +95,80 @@ class _SignupScreenState extends State<SignupScreen> {
 
   var xml_customer = [
     '''<?xml version="1.0" encoding="UTF-8"?>
-<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
-<customer>
-<id_default_group>3</id_default_group>
-<id_lang>2</id_lang>
-<deleted>0</deleted>
-<passwd>$password</passwd>
-<cpf>$cpf</cpf>
-<cnpj>$cnpj</cnpj>
-<rg>$rg</rg>
-<ie>$ie</ie>
-<lastname>$nome_resp</lastname>
-<firstname>$nome_empresa</firstname>
-<email>$email</email>
-<newsletter>0</newsletter>
-<optin>0</optin>
-<website></website>
-<company></company>
-<siret>$cnpj</siret>
-<ape></ape>
-<outstanding_allow_amount>0</outstanding_allow_amount>
-<show_public_prices>0</show_public_prices>
-<id_risk>0</id_risk>
-<max_payment_days>0</max_payment_days>
-<active>1</active>
-<note>registrado via aplicativo</note>
-<is_guest>0</is_guest>
-<id_shop>1</id_shop>
-<id_shop_group>1</id_shop_group>
-<id_default_payment>0</id_default_payment>
-<date_add></date_add>
-<date_upd></date_upd>
-<reset_password_token></reset_password_token>
-<reset_password_validity></reset_password_validity>
-<associations>
-<groups>
-<group>
-<id>3</id>
-</group>
-</groups>
-</associations>
-</customer>
-</prestashop>'''
+    <prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <customer>
+    <id_default_group>3</id_default_group>
+    <id_lang>2</id_lang>
+    <deleted>0</deleted>
+    <passwd>$password</passwd>
+    <cpf></cpf>
+    <cnpj>$cnpj</cnpj>
+    <rg></rg>
+    <ie>$ie</ie>
+    <lastname>$nome_resp</lastname>
+    <firstname>$nome_empresa</firstname>
+    <email>$email</email>
+    <newsletter>0</newsletter>
+    <optin>0</optin>
+    <website></website>
+    <company></company>
+    <siret>$cnpj</siret>
+    <ape></ape>
+    <outstanding_allow_amount>0</outstanding_allow_amount>
+    <show_public_prices>0</show_public_prices>
+    <id_risk>0</id_risk>
+    <max_payment_days>0</max_payment_days>
+    <active>1</active>
+    <note>registrado via aplicativo</note>
+    <is_guest>0</is_guest>
+    <id_shop>1</id_shop>
+    <id_shop_group>1</id_shop_group>
+    <id_default_payment>0</id_default_payment>
+    <date_add></date_add>
+    <date_upd></date_upd>
+    <reset_password_token></reset_password_token>
+    <reset_password_validity></reset_password_validity>
+    <associations>
+    <groups>
+    <group>
+    <id>3</id>
+    </group>
+    </groups>
+    </associations>
+    </customer>
+    </prestashop>'''
   ];
+
+  var xml_address = {
+    """<?xml version="1.0" encoding="UTF-8"?>
+<prestashop xmlns:xlink="http://www.w3.org/1999/xlink">
+    <address>
+        <id_customer></id_customer>
+        <id_manufacturer></id_manufacturer>
+        <id_supplier></id_supplier>
+        <id_warehouse></id_warehouse>
+        <id_country></id_country>
+        <id_state></id_state>
+        <numend></numend>
+        <alias></alias>
+        <company></company>
+        <lastname></lastname>
+        <firstname></firstname>
+        <vat_number></vat_number>
+        <address1></address1>
+        <address2></address2>
+        <postcode></postcode>
+        <city></city>
+        <other></other>
+        <phone></phone>
+        <phone_mobile></phone_mobile>
+        <dni></dni>
+        <deleted></deleted>
+        <date_add></date_add>
+        <date_upd></date_upd>
+    </address>
+</prestashop>"""
+  };
 
   var maskFormattertelefone = new MaskTextInputFormatter(
       mask: '(##) # ####-####',
@@ -171,6 +201,7 @@ class _SignupScreenState extends State<SignupScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 280, child: Image.asset("images/logo.png")),
+              Text("Cadastro destinado a Pessoas Jurídicas(PJ)"),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Column(
@@ -374,32 +405,25 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () async {
+                        setState(() {
+                          password = controller_password.text;
+                          cnpj = controller_cnpj.text;
+                          ie = controller_ie.text;
+                          nome_resp = controller_name.text;
+                          nome_empresa = controller_empresa.text;
+                          email = controller_email.text;
+                        });
                         var url_customer = Uri.parse(
                             "https://b2b.redemachado.com.br/api/customers/");
                         var url_address = Uri.parse(
                             "https://b2b.redemachado.com.br/api/addresses/");
-                        var response = await http.post(url_customer, headers: {
-                          HttpHeaders.authorizationHeader: "Basic $auth"
-                        }, body: {
-                          "cnpj": maskFormatterCnpj.getMaskedText().toString(),
-                          "passwd": controller_password.text.toString(),
-                          "ie": controller_ie.text.toString(),
-                          "email": controller_email.text.toString(),
-                          "company": controller_empresa.text.toString()
-                        });
+                        var response = await http.post(url_customer,
+                            headers: {
+                              HttpHeaders.authorizationHeader: "Basic $auth"
+                            },
+                            body: xml_customer);
                         print(response.statusCode);
-                        var response2 = await http.post(url_address, headers: {
-                          HttpHeaders.authorizationHeader: "Basic $auth"
-                        }, body: {
-                          "postcode": controller_cep.toString(),
-                          "vat_number": controller_numero.toString(),
-                          "other": controller_complemento.toString(),
-                          "city": controller_cidade.toString(),
-                          "phone": controller_telefone.toString(),
-                          "address_1": controller_rua.toString(),
-                          "address_2": controller_bairro.toString(),
-                        });
-                        print(response2.statusCode);
+
                         Navigator.push(
                             context,
                             MaterialPageRoute(
