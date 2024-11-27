@@ -200,8 +200,8 @@ class _Lista_produtosState extends State<Lista_produtos>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 100,
-                width: 180,
+                height: 90,
+                width: 190,
                 child: info['image'] != null
                     ? Image.network(
                         info['image']!,
